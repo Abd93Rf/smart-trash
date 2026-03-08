@@ -1,0 +1,24 @@
+version: '3.8' # Version du format Docker Compose
+services:
+  db:
+    # Utilisation de l'image MariaDB (compatible Raspberry Pi et Windows)
+    image: mariadb:10.6
+    container_name: smart_trash_db
+    restart: always # Redémarre automatiquement si le Raspberry s'éteint
+    # Configuration des variables d'environnement (Identifiants)
+    environment:
+      MYSQL_ROOT_PASSWORD: password     # Mot de passe administrateur
+      MYSQL_DATABASE: smart_trash       # Nom de la base créé au démarrage
+    # Liaison des ports : "Port_PC : Port_Conteneur"
+    ports:
+      - "3306:3306"
+    # Synchronisation des fichiers
+    volumes:
+      # 1. On envoie le script de création des tables + données de test
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      # 2. On crée un dossier local pour stocker les données réellement
+      # Cela évite de perdre les données si on supprime le conteneur
+      - ./db_data:/var/lib/mysql
+networks:
+  default:
+    name: smart_trash_network

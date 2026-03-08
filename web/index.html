@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Trash</title>
+</head>
+<body>
+    <script>
+        // Redirection automatique
+        // Si l'utilisateur est connecté → Dashboard
+        // Sinon → Page de connexion
+        if (localStorage.getItem("user")) {
+            window.location.href = "dashboard.html";
+        } else {
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

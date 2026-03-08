@@ -1,0 +1,210 @@
+/* ============================================
+   Smart Trash - Feuille de style principale
+   ============================================ */
+
+/* Variables de couleurs */
+:root {
+    --vert: #28a745;
+    --orange: #fd7e14;
+    --rouge: #dc3545;
+    --bleu: #007bff;
+    --gris-fonce: #343a40;
+    --gris-clair: #f8f9fa;
+}
+
+/* ============================================
+   Layout général
+   ============================================ */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+}
+
+/* ============================================
+   Barre de navigation
+   ============================================ */
+.navbar {
+    background-color: var(--gris-fonce) !important;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.navbar-brand i {
+    color: var(--vert);
+}
+
+/* ============================================
+   Contenu principal
+   ============================================ */
+.main-content {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.page-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--gris-fonce);
+    margin-bottom: 20px;
+}
+
+/* ============================================
+   Cartes du dashboard
+   ============================================ */
+.stat-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-card .card-body {
+    padding: 20px;
+}
+
+.stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.stat-card .stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card .stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.3;
+}
+
+/* ============================================
+   Badges de niveau
+   ============================================ */
+.badge-niveau-bas {
+    background-color: var(--vert);
+    color: white;
+}
+
+.badge-niveau-moyen {
+    background-color: var(--orange);
+    color: white;
+}
+
+.badge-niveau-haut {
+    background-color: var(--rouge);
+    color: white;
+}
+
+/* ============================================
+   Barre de progression (niveau de remplissage)
+   ============================================ */
+.progress-niveau {
+    height: 20px;
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-niveau .progress-bar {
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ============================================
+   Tableau
+   ============================================ */
+.table-smart th {
+    background-color: var(--gris-fonce);
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.table-smart td {
+    vertical-align: middle;
+}
+
+/* ============================================
+   Carte Leaflet
+   ============================================ */
+#map {
+    height: 500px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Formulaires
+   ============================================ */
+.form-login {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-login h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--gris-fonce);
+}
+
+/* ============================================
+   Alertes
+   ============================================ */
+.alerte-active {
+    border-left: 4px solid var(--rouge);
+}
+
+.alerte-resolue {
+    border-left: 4px solid var(--vert);
+    opacity: 0.7;
+}
+
+/* ============================================
+   Chargement
+   ============================================ */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+.loading i {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+    .stat-card .stat-number {
+        font-size: 1.5rem;
+    }
+
+    #map {
+        height: 350px;
+    }
+
+    .page-title {
+        font-size: 1.3rem;
+    }
+}
