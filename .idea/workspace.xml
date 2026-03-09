@@ -1,25 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/physique/Guide Physique.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Projet Smart Trash.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker_compose.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/INSTALLATION_SQLITE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Itineraire.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/admin.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/alertes.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/assets/css/style.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/config/database.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/dashboard.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/readme.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/statistiques.php" beforeDir="false" />
-    </list>
+    <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -76,7 +58,7 @@
       <option name="presentableId" value="Default" />
       <updated>1772986987599</updated>
       <workItem from="1772986989468" duration="2005000" />
-      <workItem from="1772989367582" duration="2994000" />
+      <workItem from="1772989367582" duration="3584000" />
     </task>
     <servers />
   </component>
