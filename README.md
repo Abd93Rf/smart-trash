@@ -1,7 +1,6 @@
 # Smart Trash
 
 **Système Intelligent de Gestion des Déchets Urbains**
-Projet de fin d'études – BTS CIEL
 
 ---
 
@@ -385,7 +384,7 @@ smart-trash/
 │   │   └── admin.js
 │   └── assets/
 │
-├── docker-compose.yml        ← Lancement de MariaDB
+├── docker-compose.yml        ← Lancement de MariaDB + Apache/PHP
 └── README.md
 ```
 
@@ -396,6 +395,7 @@ smart-trash/
 ### Prérequis
 
 - Docker et Docker Compose installés sur le Raspberry Pi (ou sur votre PC pour tester)
+- Pas besoin d'installer PHP, Apache ou MariaDB sur la machine, tout est dans Docker
 
 ### Étapes
 
@@ -408,23 +408,32 @@ unzip smart-trash.zip
 cd smart-trash
 ```
 
-**2. Lancer la base de données MariaDB**
+**2. Lancer le projet (une seule commande)**
 
 ```bash
 docker-compose up -d
 ```
 
 Cette commande va :
-- Télécharger l'image MariaDB 10.6
-- Créer le conteneur `smart_trash_db`
+- Télécharger les images MariaDB 10.6 et PHP 8.2 + Apache
+- Créer le conteneur `smart_trash_db` (base de données)
+- Créer le conteneur `smart_trash_web` (serveur web + API)
 - Créer la base `smart_trash` automatiquement
 - Exécuter le fichier `database/schema.sql` (création des tables + données de test)
+- Installer l'extension PDO MySQL dans le conteneur web
 - Stocker les données dans le dossier `db_data/` pour ne rien perdre
 
-**3. Vérifier que la base fonctionne**
+**3. Accéder au site**
+
+Le site est accessible à l'adresse : `http://localhost:8080/web/login.html`
+L'API est accessible à : `http://localhost:8080/api/poubelles.php`
+
+Connexion : `admin@smarttrash.fr` / `admin123`
+
+**4. Vérifier que tout fonctionne**
 
 ```bash
-# Voir si le conteneur tourne
+# Voir si les conteneurs tournent
 docker ps
 
 # Se connecter à MariaDB pour vérifier
@@ -436,21 +445,9 @@ SELECT * FROM poubelles;
 EXIT;
 ```
 
-**4. Lancer le serveur PHP (pour le site web et l'API)**
-
-```bash
-# Depuis le dossier smart-trash, lancer le serveur PHP intégré
-php -S 0.0.0.0:8080 -t .
-```
-
-Le site sera accessible à l'adresse : `http://localhost:8080/web/login.html`
-L'API sera accessible à : `http://localhost:8080/api/poubelles.php`
-
 **5. Arrêter le projet**
 
 ```bash
-# Arrêter le serveur PHP : Ctrl + C
-# Arrêter la base de données :
 docker-compose down
 ```
 
@@ -458,10 +455,11 @@ docker-compose down
 
 | Commande | Description |
 |----------|-------------|
-| `docker-compose up -d` | Démarrer la base de données |
-| `docker-compose down` | Arrêter la base de données |
-| `docker-compose logs` | Voir les logs du conteneur |
-| `docker ps` | Vérifier que le conteneur tourne |
+| `docker-compose up -d` | Démarrer tout le projet |
+| `docker-compose down` | Arrêter tout le projet |
+| `docker-compose logs` | Voir les logs des conteneurs |
+| `docker-compose logs web` | Voir les logs du serveur web |
+| `docker ps` | Vérifier que les conteneurs tournent |
 | `docker exec -it smart_trash_db mysql -u root -ppassword smart_trash` | Se connecter à MariaDB |
 
 ### Réinitialiser la base de données
@@ -534,5 +532,3 @@ Smart Trash est un projet IoT complet pour un BTS CIEL, intégrant :
 - Une base MySQL
 - De l'analyse de données et de l'optimisation d'itinéraire
 - Un site web qui consomme l'API
-
-L'architecture API permet au projet d'être propre, sécurisé et évolutif, tout en restant à un niveau accessible pour un projet de BTS.

@@ -1,14 +1,42 @@
 version: '3.8' # Version du format Docker Compose
 services:
+
+  # ============================================
+  # Serveur Web Apache + PHP
+  # ============================================
+  web:
+    image: php:8.2-apache
+    container_name: smart_trash_web
+    restart: always # Redémarre automatiquement
+    # Liaison des ports : on accède au site via http://localhost:8080
+    ports:
+      - "8080:80"
+    # Synchronisation des fichiers du projet dans le conteneur
+    volumes:
+      - ./api:/var/www/html/api
+      - ./web:/var/www/html/web
+    # Le serveur web attend que la base soit prête avant de démarrer
+    depends_on:
+      - db
+    # Installation de l'extension PDO MySQL au démarrage du conteneur
+    command: >
+      bash -c "docker-php-ext-install pdo pdo_mysql && apache2-foreground"
+
+  # ============================================
+  # Base de données MariaDB
+  # ============================================
   db:
     # Utilisation de l'image MariaDB (compatible Raspberry Pi et Windows)
     image: mariadb:10.6
     container_name: smart_trash_db
-    restart: always # Redémarre automatiquement si le Raspberry s'éteint
+    restart: always # Redémarre automatiquement
     # Configuration des variables d'environnement (Identifiants)
     environment:
       MYSQL_ROOT_PASSWORD: password     # Mot de passe administrateur
       MYSQL_DATABASE: smart_trash       # Nom de la base créé au démarrage
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: web_user
+      MYSQL_PASSWORD: poubelle2026
     # Liaison des ports : "Port_PC : Port_Conteneur"
     ports:
       - "3306:3306"
@@ -19,6 +47,7 @@ services:
       # 2. On crée un dossier local pour stocker les données réellement
       # Cela évite de perdre les données si on supprime le conteneur
       - ./db_data:/var/lib/mysql
+
 networks:
   default:
     name: smart_trash_network

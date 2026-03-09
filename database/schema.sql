@@ -65,15 +65,15 @@ CREATE TABLE IF NOT EXISTS alertes (
 
 -- Utilisateur admin (mot de passe : admin123)
 INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES
-('Admin', 'admin@smarttrash.fr', '$2y$12$H5NbkStYOUJhODIrvKGTCexGLTAhNdeh7H0wu2OqNIlG5m5dQCoMi', 'admin');
+('Admin', 'admin@smarttrash.fr', '$2y$10$YQuS8ZjFYJKXmMkSVQ5HxOhMfL3r0FVmZ5RiY6kd2FxHq8DTcXvK2', 'admin');
 
 -- Poubelles de test (coordonnées à Tunis)
 INSERT INTO poubelles (nom, adresse, latitude, longitude, statut) VALUES
-                                                                      ('Poubelle A', 'Rue de la République', 48.9362, 2.3574, 'actif'),
-                                                                      ('Poubelle B', 'Place du Caquet', 48.9345, 2.3580, 'actif'),
-                                                                      ('Poubelle C', 'Avenue du Président Wilson', 48.9310, 2.3530, 'actif'),
-                                                                      ('Poubelle D', 'Rue Gabriel Péri', 48.9380, 2.3550, 'actif'),
-                                                                      ('Poubelle E', 'Boulevard Marcel Sembat', 48.9290, 2.3610, 'maintenance');
+('Poubelle A', 'Rue de la République', 48.9362, 2.3574, 'actif'),
+('Poubelle B', 'Place du Caquet', 48.9345, 2.3580, 'actif'),
+('Poubelle C', 'Avenue du Président Wilson', 48.9310, 2.3530, 'actif'),
+('Poubelle D', 'Rue Gabriel Péri', 48.9380, 2.3550, 'actif'),
+('Poubelle E', 'Boulevard Marcel Sembat', 48.9290, 2.3610, 'maintenance');
 
 -- Mesures simulées pour les dernières 48h
 INSERT INTO mesures (id_poubelle, niveau, poids, temperature, date_mesure) VALUES
