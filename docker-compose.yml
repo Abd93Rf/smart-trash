@@ -18,9 +18,9 @@ services:
     # Le serveur web attend que la base soit prête avant de démarrer
     depends_on:
       - db
-    # Installation de l'extension PDO MySQL au démarrage du conteneur
+    # Installation de l'extension PDO MySQL + correction mot de passe + démarrage Apache
     command: >
-      bash -c "docker-php-ext-install pdo pdo_mysql && apache2-foreground"
+      bash -c "docker-php-ext-install pdo pdo_mysql && php /var/www/html/api/init_password.php && apache2-foreground"
 
   # ============================================
   # Base de données MariaDB
@@ -34,9 +34,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password     # Mot de passe administrateur
       MYSQL_DATABASE: smart_trash       # Nom de la base créé au démarrage
-      MYSQL_ROOT_HOST: '%'
-      MYSQL_USER: web_user
-      MYSQL_PASSWORD: poubelle2026
+      MYSQL_ROOT_HOST: '%'             # Autoriser les connexions depuis les autres conteneurs
     # Liaison des ports : "Port_PC : Port_Conteneur"
     ports:
       - "3306:3306"
