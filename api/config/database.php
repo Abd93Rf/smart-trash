@@ -6,8 +6,8 @@
 // Paramètres de connexion
 $host = "db";
 $dbname = "smart_trash";
-$username = "web_user";
-$password = "poubelle2026";
+$username = "root";
+$password = "password";
 
 try {
     // Connexion avec PDO
