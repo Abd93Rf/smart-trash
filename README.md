@@ -5,6 +5,26 @@
 
 ---
 
+## 📋 Sommaire
+ 
+1. [Présentation du projet](#1-présentation-du-projet)
+2. [Objectifs](#2-objectifs)
+3. [Architecture globale](#3-architecture-globale)
+4. [Partie 1 — Poubelle Connectée (Hardware)](#4-partie-1--poubelle-connectée-hardware)
+5. [Partie 2 — API REST PHP + MariaDB](#5-partie-2--api-rest-php--mariadb)
+6. [Partie 3 — Base de données](#6-partie-3--base-de-données)
+7. [Partie 4 — Analyse & Optimisation](#7-partie-4--analyse--optimisation)
+8. [Partie 5 — Site Web](#8-partie-5--site-web)
+9. [Sécurité](#9-sécurité)
+10. [Structure du projet](#10-structure-du-projet)
+11. [Lancement avec Docker](#11-lancement-du-projet-avec-docker)
+12. [Tests](#12-tests)
+13. [Planning](#13-planning)
+14. [Améliorations futures](#14-améliorations-futures)
+15. [Résumé technique](#15-résumé-technique)
+
+---
+
 ## 1. Présentation du projet
 
 **Smart Trash** est un système IoT permettant d'optimiser la collecte des déchets urbains en collectant uniquement les poubelles réellement nécessaires, au moment optimal.
