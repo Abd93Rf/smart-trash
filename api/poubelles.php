@@ -11,7 +11,6 @@
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/fonctions.php';
 
-// Gérer les requêtes OPTIONS (CORS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     reponseJSON("success", null, 200);
 }
@@ -24,11 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 
     if ($id) {
-        // Détail d'une poubelle avec sa dernière mesure
         $sql = "SELECT p.*, 
                        m.niveau AS dernier_niveau, 
                        m.poids AS dernier_poids, 
                        m.temperature AS derniere_temperature,
+                       m.humidite AS derniere_humidite,
                        m.date_mesure AS derniere_mesure
                 FROM poubelles p
                 LEFT JOIN mesures m ON m.id = (
@@ -46,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         reponseJSON("success", $poubelle);
 
     } else {
-        // Liste de toutes les poubelles avec dernière mesure
         $sql = "SELECT p.*, 
                        m.niveau AS dernier_niveau, 
                        m.poids AS dernier_poids, 
                        m.temperature AS derniere_temperature,
+                       m.humidite AS derniere_humidite,
                        m.date_mesure AS derniere_mesure
                 FROM poubelles p
                 LEFT JOIN mesures m ON m.id = (
@@ -71,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $data = recupererJSON();
 
-    // Vérifier les champs obligatoires
     if (empty($data['nom']) || !isset($data['latitude']) || !isset($data['longitude'])) {
         reponseJSON("error", "Champs requis : nom, latitude, longitude", 400);
     }
@@ -105,7 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     $data = recupererJSON();
 
-    // Vérifier que la poubelle existe
     $stmt = $pdo->prepare("SELECT id FROM poubelles WHERE id = :id");
     $stmt->execute(['id' => $id]);
     if (!$stmt->fetch()) {

@@ -20,16 +20,16 @@ async function chargerMoyennes() {
             var jours = [];
             var niveaux = [];
             var poids = [];
+            var humidites = [];
 
             resultat.data.forEach(function (m) {
-                // Formater la date en "JJ/MM"
                 var d = new Date(m.jour);
                 jours.push(d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }));
                 niveaux.push(m.moyenne_niveau);
                 poids.push(m.moyenne_poids);
+                humidites.push(m.moyenne_humidite);
             });
 
-            // Créer le graphique avec Chart.js
             var ctx = document.getElementById("graphMoyennes").getContext("2d");
             new Chart(ctx, {
                 type: "bar",
@@ -48,6 +48,13 @@ async function chargerMoyennes() {
                             data: poids,
                             backgroundColor: "rgba(54, 162, 235, 0.6)",
                             borderColor: "rgba(54, 162, 235, 1)",
+                            borderWidth: 1
+                        },
+                        {
+                            label: "Humidité moyenne (%)",
+                            data: humidites,
+                            backgroundColor: "rgba(75, 192, 192, 0.6)",
+                            borderColor: "rgba(75, 192, 192, 1)",
                             borderWidth: 1
                         }
                     ]
@@ -110,7 +117,7 @@ async function chargerHeuresPointe() {
 }
 
 // ============================================
-// Tableau : Classement des poubelles
+// Tableau : Classement enrichi des poubelles
 // ============================================
 async function chargerClassement() {
     try {
@@ -127,14 +134,18 @@ async function chargerClassement() {
                     "<td><strong>" + (index + 1) + "</strong></td>" +
                     "<td>" + p.nom + "</td>" +
                     "<td>" +
-                        '<div class="progress progress-niveau" style="min-width:80px">' +
-                            '<div class="progress-bar ' + couleurNiveau(p.moyenne_niveau) + '" style="width:' + p.moyenne_niveau + '%">' +
-                                p.moyenne_niveau + "%" +
-                            "</div>" +
-                        "</div>" +
+                    '<div class="progress progress-niveau" style="min-width:80px">' +
+                    '<div class="progress-bar ' + couleurNiveau(p.moyenne_niveau) + '" style="width:' + p.moyenne_niveau + '%">' +
+                    p.moyenne_niveau + "%" +
+                    "</div>" +
+                    "</div>" +
                     "</td>" +
-                    "<td>" + (p.niveau_max || 0) + "%</td>" +
-                    "<td>" + p.nb_alertes + "</td>";
+                    "<td>" + badgePoids(p.moyenne_poids) + "</td>" +
+                    "<td>" + badgeTemperature(p.moyenne_temperature) + "</td>" +
+                    "<td>" + badgeHumidite(p.moyenne_humidite) + "</td>" +
+                    "<td>" + (p.vitesse_remplissage || 0) + " %/h</td>" +
+                    "<td>" + badgeAlertes(p.nb_alertes) + "</td>" +
+                    "<td>" + badgeScore(p.score) + "</td>";
                 tbody.appendChild(tr);
             });
         }
@@ -143,9 +154,43 @@ async function chargerClassement() {
     }
 }
 
-// Couleur selon le niveau
+// ============================================
+// Fonctions utilitaires d'affichage
+// ============================================
+
 function couleurNiveau(niveau) {
-    if (niveau > 70) return "bg-danger";
-    if (niveau > 40) return "bg-warning";
+    if (niveau > 90) return "bg-danger";
+    if (niveau > 70) return "bg-warning";
     return "bg-success";
+}
+
+function badgePoids(poids) {
+    if (poids > 15) return '<span class="badge bg-danger">' + parseFloat(poids).toFixed(1) + ' kg</span>';
+    if (poids > 10) return '<span class="badge bg-warning text-dark">' + parseFloat(poids).toFixed(1) + ' kg</span>';
+    return parseFloat(poids).toFixed(1) + " kg";
+}
+
+function badgeTemperature(temp) {
+    if (temp > 40) return '<span class="badge bg-danger">' + parseFloat(temp).toFixed(1) + ' °C</span>';
+    if (temp > 30) return '<span class="badge bg-warning text-dark">' + parseFloat(temp).toFixed(1) + ' °C</span>';
+    return parseFloat(temp).toFixed(1) + " °C";
+}
+
+function badgeHumidite(humidite) {
+    if (!humidite) return "-";
+    if (humidite > 80) return '<span class="badge bg-danger">' + parseFloat(humidite).toFixed(1) + ' %</span>';
+    if (humidite > 60) return '<span class="badge bg-warning text-dark">' + parseFloat(humidite).toFixed(1) + ' %</span>';
+    return parseFloat(humidite).toFixed(1) + " %";
+}
+
+function badgeAlertes(nb) {
+    if (nb > 3) return '<span class="badge bg-danger">' + nb + '</span>';
+    if (nb > 0) return '<span class="badge bg-warning text-dark">' + nb + '</span>';
+    return '<span class="badge bg-success">0</span>';
+}
+
+function badgeScore(score) {
+    if (score > 60) return '<span class="badge bg-danger" style="font-size: 0.9rem;">' + score + '</span>';
+    if (score > 40) return '<span class="badge bg-warning text-dark" style="font-size: 0.9rem;">' + score + '</span>';
+    return '<span class="badge bg-success" style="font-size: 0.9rem;">' + score + '</span>';
 }

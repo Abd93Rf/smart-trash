@@ -1,13 +1,15 @@
 <?php
 // ============================================
 // Smart Trash - Connexion à la base de données
+// Utilise l'utilisateur dédié smart_user
+// (pas root) pour plus de sécurité
 // ============================================
 
 // Paramètres de connexion
 $host = "db";
 $dbname = "smart_trash";
-$username = "root";
-$password = "password";
+$username = "smart_user";
+$password = "poubelle2026";
 
 try {
     // Connexion avec PDO

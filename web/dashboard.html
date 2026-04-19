@@ -10,115 +10,116 @@
 </head>
 <body>
 
-    <!-- Barre de navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html">
-                <i class="bi bi-recycle"></i> Smart Trash
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+<!-- Barre de navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="dashboard.html">
+            <i class="bi bi-recycle"></i> Smart Trash
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="statistiques.html"><i class="bi bi-bar-chart"></i> Statistiques</a></li>
+                <li class="nav-item"><a class="nav-link" href="itineraire.html"><i class="bi bi-map"></i> Itinéraire</a></li>
+                <li class="nav-item"><a class="nav-link" href="alertes.html"><i class="bi bi-exclamation-triangle"></i> Alertes</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin.html"><i class="bi bi-gear"></i> Admin</a></li>
+            </ul>
+            <span class="navbar-text text-light me-3" id="userInfo"></span>
+            <button class="btn btn-outline-light btn-sm" onclick="deconnexion()">
+                <i class="bi bi-box-arrow-right"></i> Déconnexion
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="statistiques.html"><i class="bi bi-bar-chart"></i> Statistiques</a></li>
-                    <li class="nav-item"><a class="nav-link" href="itineraire.html"><i class="bi bi-map"></i> Itinéraire</a></li>
-                    <li class="nav-item"><a class="nav-link" href="alertes.html"><i class="bi bi-exclamation-triangle"></i> Alertes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admin.html"><i class="bi bi-gear"></i> Admin</a></li>
-                </ul>
-                <span class="navbar-text text-light me-3" id="userInfo"></span>
-                <button class="btn btn-outline-light btn-sm" onclick="deconnexion()">
-                    <i class="bi bi-box-arrow-right"></i> Déconnexion
-                </button>
-            </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Contenu principal -->
-    <div class="main-content">
-        <h1 class="page-title"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+<!-- Contenu principal -->
+<div class="main-content">
+    <h1 class="page-title"><i class="bi bi-speedometer2"></i> Dashboard</h1>
 
-        <!-- Cartes de résumé -->
-        <div class="row mb-4" id="cartes-resume">
-            <div class="col-md-4 col-sm-6 mb-3">
-                <div class="card stat-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-number text-primary" id="totalPoubelles">-</div>
-                            <div class="stat-label">Poubelles</div>
-                        </div>
-                        <i class="bi bi-trash stat-icon text-primary"></i>
+    <!-- Cartes de résumé -->
+    <div class="row mb-4" id="cartes-resume">
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-number text-primary" id="totalPoubelles">-</div>
+                        <div class="stat-label">Poubelles</div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-3">
-                <div class="card stat-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-number text-warning" id="alertesActives">-</div>
-                            <div class="stat-label">Alertes actives</div>
-                        </div>
-                        <i class="bi bi-exclamation-triangle stat-icon text-warning"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 mb-3">
-                <div class="card stat-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-number text-danger" id="poubellesACollecter">-</div>
-                            <div class="stat-label">À collecter (&gt;70%)</div>
-                        </div>
-                        <i class="bi bi-truck stat-icon text-danger"></i>
-                    </div>
+                    <i class="bi bi-trash stat-icon text-primary"></i>
                 </div>
             </div>
         </div>
-
-        <!-- Niveau moyen -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Niveau moyen de remplissage</h5>
-                        <div class="progress progress-niveau">
-                            <div class="progress-bar" id="barreNiveauMoyen" role="progressbar" style="width: 0%">0%</div>
-                        </div>
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-number text-warning" id="alertesActives">-</div>
+                        <div class="stat-label">Alertes actives</div>
                     </div>
+                    <i class="bi bi-exclamation-triangle stat-icon text-warning"></i>
                 </div>
             </div>
         </div>
-
-        <!-- Liste des poubelles -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">État des poubelles</h5>
-                <div class="table-responsive">
-                    <table class="table table-smart table-hover">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Adresse</th>
-                                <th>Niveau</th>
-                                <th>Poids</th>
-                                <th>Température</th>
-                                <th>Statut</th>
-                                <th>Dernière mesure</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablePoubelles">
-                            <tr><td colspan="7" class="loading"><i class="bi bi-arrow-repeat"></i> Chargement...</td></tr>
-                        </tbody>
-                    </table>
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-number text-danger" id="poubellesACollecter">-</div>
+                        <div class="stat-label">À collecter (&gt;70%)</div>
+                    </div>
+                    <i class="bi bi-truck stat-icon text-danger"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/dashboard.js"></script>
+    <!-- Niveau moyen -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Niveau moyen de remplissage</h5>
+                    <div class="progress progress-niveau">
+                        <div class="progress-bar" id="barreNiveauMoyen" role="progressbar" style="width: 0%">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des poubelles -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">État des poubelles</h5>
+            <div class="table-responsive">
+                <table class="table table-smart table-hover">
+                    <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Adresse</th>
+                        <th>Niveau</th>
+                        <th>Poids</th>
+                        <th>Température</th>
+                        <th>Humidité</th>
+                        <th>Statut</th>
+                        <th>Dernière mesure</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablePoubelles">
+                    <tr><td colspan="8" class="loading"><i class="bi bi-arrow-repeat"></i> Chargement...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
 
 </body>
 </html>

@@ -3,6 +3,13 @@
 // Smart Trash - API Mesures
 // POST /api/mesures.php → Recevoir données capteurs
 // GET  /api/mesures.php → Lire les mesures
+//
+// Alertes multi-critères :
+//   - Niveau > 70%   → alerte "pleine"
+//   - Niveau > 90%   → alerte "critique"
+//   - Poids > 15 kg  → alerte "surcharge"
+//   - Temp > 40°C    → alerte "temperature"
+//   - Humidité > 80% → alerte "humidite"
 // ============================================
 
 require_once __DIR__ . '/config/database.php';
@@ -31,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $niveau      = floatval($data['niveau']);
     $poids       = floatval($data['poids']);
     $temperature = floatval($data['temperature']);
+    $humidite    = isset($data['humidite']) ? floatval($data['humidite']) : null;
 
     // Vérifier que la poubelle existe
     $stmt = $pdo->prepare("SELECT id FROM poubelles WHERE id = :id");
@@ -40,36 +48,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insérer la mesure dans la base
-    $sql = "INSERT INTO mesures (id_poubelle, niveau, poids, temperature) 
-            VALUES (:id_poubelle, :niveau, :poids, :temperature)";
+    $sql = "INSERT INTO mesures (id_poubelle, niveau, poids, temperature, humidite) 
+            VALUES (:id_poubelle, :niveau, :poids, :temperature, :humidite)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         'id_poubelle' => $idPoubelle,
         'niveau'      => $niveau,
         'poids'       => $poids,
-        'temperature' => $temperature
+        'temperature' => $temperature,
+        'humidite'    => $humidite
     ]);
 
-    // Si le niveau dépasse 70%, créer une alerte automatiquement
-    if ($niveau > 70) {
-        $sqlAlerte = "INSERT INTO alertes (id_poubelle, type_alerte, message, statut)
-                      VALUES (:id, 'pleine', :message, 'active')";
-        $stmtAlerte = $pdo->prepare($sqlAlerte);
-        $stmtAlerte->execute([
-            'id'      => $idPoubelle,
-            'message' => "Niveau de remplissage à " . round($niveau) . "%"
-        ]);
+    // ============================================
+    // Alertes multi-critères
+    // ============================================
+
+    // Alerte niveau > 90% (critique)
+    if ($niveau > 90) {
+        creerAlerte($pdo, $idPoubelle, 'critique', "Niveau critique à " . round($niveau) . "%");
+    }
+    // Alerte niveau > 70% (pleine)
+    else if ($niveau > 70) {
+        creerAlerte($pdo, $idPoubelle, 'pleine', "Niveau de remplissage à " . round($niveau) . "%");
     }
 
-    // Si la température dépasse 40°C, créer une alerte température
+    // Alerte surcharge (poids > 15 kg)
+    if ($poids > 15) {
+        creerAlerte($pdo, $idPoubelle, 'surcharge', "Poids élevé : " . round($poids, 1) . " kg");
+    }
+
+    // Alerte température (> 40°C)
     if ($temperature > 40) {
-        $sqlAlerte = "INSERT INTO alertes (id_poubelle, type_alerte, message, statut)
-                      VALUES (:id, 'temperature', :message, 'active')";
-        $stmtAlerte = $pdo->prepare($sqlAlerte);
-        $stmtAlerte->execute([
-            'id'      => $idPoubelle,
-            'message' => "Température élevée : " . round($temperature, 1) . "°C"
-        ]);
+        creerAlerte($pdo, $idPoubelle, 'temperature', "Température élevée : " . round($temperature, 1) . "°C");
+    }
+
+    // Alerte humidité (> 80%)
+    if ($humidite !== null && $humidite > 80) {
+        creerAlerte($pdo, $idPoubelle, 'humidite', "Humidité élevée : " . round($humidite, 1) . "%");
     }
 
     reponseJSON("success", ["message" => "Mesure enregistrée", "id" => $pdo->lastInsertId()], 201);
@@ -80,12 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    // Paramètres optionnels
     $idPoubelle = isset($_GET['id_poubelle']) ? intval($_GET['id_poubelle']) : null;
     $limite     = isset($_GET['limite']) ? intval($_GET['limite']) : 50;
 
     if ($idPoubelle) {
-        // Mesures d'une poubelle spécifique
         $sql = "SELECT m.*, p.nom AS nom_poubelle 
                 FROM mesures m 
                 JOIN poubelles p ON m.id_poubelle = p.id 
@@ -96,7 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->bindValue('id', $idPoubelle, PDO::PARAM_INT);
         $stmt->bindValue('limite', $limite, PDO::PARAM_INT);
     } else {
-        // Toutes les mesures récentes
         $sql = "SELECT m.*, p.nom AS nom_poubelle 
                 FROM mesures m 
                 JOIN poubelles p ON m.id_poubelle = p.id 
@@ -112,5 +124,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     reponseJSON("success", $mesures);
 }
 
-// Si autre méthode
+// ============================================
+// Fonction pour créer une alerte
+// ============================================
+function creerAlerte($pdo, $idPoubelle, $type, $message) {
+    $sql = "INSERT INTO alertes (id_poubelle, type_alerte, message, statut)
+            VALUES (:id, :type, :message, 'active')";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        'id'      => $idPoubelle,
+        'type'    => $type,
+        'message' => $message
+    ]);
+}
+
 reponseJSON("error", "Méthode non autorisée", 405);
