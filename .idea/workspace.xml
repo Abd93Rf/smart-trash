@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/config/database.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/config/database.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/physique/Guide Physique.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/statistiques.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/statistiques.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +71,8 @@
       <workItem from="1776189818388" duration="3335000" />
       <workItem from="1776274076030" duration="659000" />
       <workItem from="1776281068871" duration="3204000" />
-      <workItem from="1776287223147" duration="3075000" />
+      <workItem from="1776287223147" duration="4048000" />
+      <workItem from="1776292174689" duration="246000" />
     </task>
     <servers />
   </component>

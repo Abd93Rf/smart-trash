@@ -6,7 +6,11 @@
 ---
 
 ## 📋 Sommaire
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> 9b22e57daf14550864137df254956687955954c8
 1. [Présentation du projet](#1-présentation-du-projet)
 2. [Objectifs](#2-objectifs)
 3. [Architecture globale](#3-architecture-globale)
