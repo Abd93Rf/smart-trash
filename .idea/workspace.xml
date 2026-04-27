@@ -2,20 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/database/init_user.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/config/database.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/config/database.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/init_password.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/init_password.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/mesures.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/mesures.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/poubelles.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/poubelles.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/statistiques.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/statistiques.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/dashboard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/statistiques.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/statistiques.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/statistiques.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/statistiques.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/itineraire.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/itineraire.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/js/itineraire.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/itineraire.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +78,12 @@
       <workItem from="1776287223147" duration="4048000" />
       <workItem from="1776292174689" duration="246000" />
       <workItem from="1776609818654" duration="6574000" />
-      <workItem from="1776619514603" duration="1131000" />
+      <workItem from="1776619514603" duration="2126000" />
+      <workItem from="1776698489844" duration="1343000" />
+      <workItem from="1776708414985" duration="2756000" />
+      <workItem from="1777239064611" duration="418000" />
+      <workItem from="1777240514045" duration="1282000" />
+      <workItem from="1777325089275" duration="1499000" />
     </task>
     <servers />
   </component>

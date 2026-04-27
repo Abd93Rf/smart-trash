@@ -8,92 +8,100 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Leaflet CSS -->
     <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+    <!-- Leaflet Routing Machine CSS -->
+    <link href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <style>
+        /* Cacher le panneau d'instructions de routage (on a notre propre sidebar) */
+        .leaflet-routing-container { display: none !important; }
+    </style>
 </head>
 <body>
 
-    <!-- Barre de navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html"><i class="bi bi-recycle"></i> Smart Trash</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="statistiques.html"><i class="bi bi-bar-chart"></i> Statistiques</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="itineraire.html"><i class="bi bi-map"></i> Itinéraire</a></li>
-                    <li class="nav-item"><a class="nav-link" href="alertes.html"><i class="bi bi-exclamation-triangle"></i> Alertes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="admin.html"><i class="bi bi-gear"></i> Admin</a></li>
-                </ul>
-                <span class="navbar-text text-light me-3" id="userInfo"></span>
-                <button class="btn btn-outline-light btn-sm" onclick="deconnexion()"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
-            </div>
+<!-- Barre de navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="dashboard.html"><i class="bi bi-recycle"></i> Smart Trash</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="statistiques.html"><i class="bi bi-bar-chart"></i> Statistiques</a></li>
+                <li class="nav-item"><a class="nav-link active" href="itineraire.html"><i class="bi bi-map"></i> Itinéraire</a></li>
+                <li class="nav-item"><a class="nav-link" href="alertes.html"><i class="bi bi-exclamation-triangle"></i> Alertes</a></li>
+                <li class="nav-item"><a class="nav-link" href="admin.html"><i class="bi bi-gear"></i> Admin</a></li>
+            </ul>
+            <span class="navbar-text text-light me-3" id="userInfo"></span>
+            <button class="btn btn-outline-light btn-sm" onclick="deconnexion()"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="main-content">
-        <h1 class="page-title"><i class="bi bi-map"></i> Itinéraire de collecte optimisé</h1>
+<div class="main-content">
+    <h1 class="page-title"><i class="bi bi-map"></i> Itinéraire de collecte optimisé</h1>
 
-        <!-- Résumé de l'itinéraire -->
-        <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card stat-card">
-                    <div class="card-body text-center">
-                        <div class="stat-number text-danger" id="nbPoubelles">-</div>
-                        <div class="stat-label">Poubelles à collecter</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card stat-card">
-                    <div class="card-body text-center">
-                        <div class="stat-number text-primary" id="distanceTotale">-</div>
-                        <div class="stat-label">Distance totale (km)</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card stat-card">
-                    <div class="card-body text-center">
-                        <div class="stat-number text-success" id="tempsEstime">-</div>
-                        <div class="stat-label">Temps estimé (min)</div>
-                    </div>
+    <!-- Résumé de l'itinéraire -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-number text-danger" id="nbPoubelles">-</div>
+                    <div class="stat-label">Poubelles à collecter</div>
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <!-- Carte -->
-            <div class="col-lg-8 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Carte de l'itinéraire</h5>
-                        <div id="map"></div>
-                    </div>
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-number text-primary" id="distanceTotale">-</div>
+                    <div class="stat-label">Distance totale (km)</div>
                 </div>
             </div>
-
-            <!-- Ordre de passage -->
-            <div class="col-lg-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Ordre de passage</h5>
-                        <div id="ordrePassage">
-                            <p class="loading"><i class="bi bi-arrow-repeat"></i> Chargement...</p>
-                        </div>
-                    </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-number text-success" id="tempsEstime">-</div>
+                    <div class="stat-label">Temps estimé (min)</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/itineraire.js"></script>
+    <div class="row">
+        <!-- Carte -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Carte de l'itinéraire</h5>
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ordre de passage -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ordre de passage</h5>
+                    <div id="ordrePassage">
+                        <p class="loading"><i class="bi bi-arrow-repeat"></i> Chargement...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet Routing Machine JS (utilise OSRM gratuit) -->
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/itineraire.js"></script>
 
 </body>
 </html>

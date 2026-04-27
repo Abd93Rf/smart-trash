@@ -1,7 +1,7 @@
 # 🗑️ Smart Trash
 
 **Système Intelligent de Gestion des Déchets Urbains**
-*Projet de fin d'études – BTS CIEL*
+*Projet de fin de cursus – BTS CIEL*
 
 ---
 
@@ -771,9 +771,3 @@ curl -X POST http://localhost:8080/api/mesures.php \
 - **Alertes multi-critères** (niveau, poids, température, humidité)
 - **Analyse de données** avec score combiné et visualisations interactives
 - **Code documenté** et maintenable
-
-Le projet reste accessible (niveau BTS) tout en utilisant des technologies et des bonnes pratiques **professionnelles**.
-
----
-
-*Dernière mise à jour : Avril 2026*

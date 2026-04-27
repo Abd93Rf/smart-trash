@@ -70,10 +70,10 @@ INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES
 -- Poubelles de test (Saint-Denis)
 INSERT INTO poubelles (nom, adresse, latitude, longitude, statut) VALUES
                                                                       ('Poubelle A', 'Rue de la République', 48.9362, 2.3574, 'actif'),
-                                                                      ('Poubelle B', 'Place du Caquet', 48.9345, 2.3580, 'actif'),
-                                                                      ('Poubelle C', 'Avenue du Président Wilson', 48.9310, 2.3530, 'actif'),
-                                                                      ('Poubelle D', 'Rue Gabriel Péri', 48.9380, 2.3550, 'actif'),
-                                                                      ('Poubelle E', 'Boulevard Marcel Sembat', 48.9290, 2.3610, 'maintenance');
+                                                                      ('Poubelle B', 'Rue Gabriel Péri', 48.9355, 2.3555, 'actif'),
+                                                                      ('Poubelle C', 'Place du Caquet', 48.9345, 2.3580, 'actif'),
+                                                                      ('Poubelle D', 'Rue de Strasbourg', 48.9338, 2.3562, 'actif'),
+                                                                      ('Poubelle E', 'Place du 8 Mai 1945', 48.9330, 2.3545, 'maintenance');
 
 -- Mesures simulées avec humidité
 INSERT INTO mesures (id_poubelle, niveau, poids, temperature, humidite, date_mesure) VALUES

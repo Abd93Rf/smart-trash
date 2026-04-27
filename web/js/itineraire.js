@@ -1,12 +1,14 @@
 // ============================================
 // Smart Trash - Itinéraire optimisé
+// Utilise Leaflet Routing Machine + OSRM
+// pour tracer le trajet sur les vraies rues
 // ============================================
 
 // Variable globale pour la carte
 var carte;
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Initialiser la carte Leaflet (centrée sur Tunis)
+    // Initialiser la carte Leaflet (centrée sur Saint-Denis)
     carte = L.map("map").setView([48.9340, 2.3570], 15);
 
     // Ajouter le fond de carte OpenStreetMap
@@ -46,6 +48,9 @@ async function chargerItineraire() {
             // Afficher les marqueurs sur la carte
             afficherMarqueurs(data.ordre_passage);
 
+            // Tracer l'itinéraire routier via OSRM
+            tracerItineraireRoutier(data.ordre_passage);
+
             // Afficher l'ordre de passage dans la liste
             afficherOrdrePassage(data.ordre_passage);
         }
@@ -57,7 +62,7 @@ async function chargerItineraire() {
 }
 
 // ============================================
-// Afficher les marqueurs et le trajet sur la carte
+// Afficher les marqueurs numérotés sur la carte
 // ============================================
 function afficherMarqueurs(poubelles) {
     var coordonnees = [];
@@ -85,20 +90,44 @@ function afficherMarqueurs(poubelles) {
             );
     });
 
-    // Tracer la ligne du trajet
-    if (coordonnees.length > 1) {
-        L.polyline(coordonnees, {
-            color: "#dc3545",
-            weight: 3,
-            opacity: 0.7,
-            dashArray: "10, 10"
-        }).addTo(carte);
-    }
-
     // Ajuster le zoom pour voir tous les marqueurs
     if (coordonnees.length > 0) {
         carte.fitBounds(coordonnees, { padding: [30, 30] });
     }
+}
+
+// ============================================
+// Tracer l'itinéraire routier avec OSRM
+// (suit les vraies rues au lieu de lignes droites)
+// ============================================
+function tracerItineraireRoutier(poubelles) {
+    // Construire la liste des points de passage (waypoints)
+    var waypoints = poubelles.map(function (p) {
+        return L.latLng(p.latitude, p.longitude);
+    });
+
+    // Créer le routage via OSRM (gratuit, pas de clé API)
+    L.Routing.control({
+        waypoints: waypoints,
+        routeWhileDragging: false,
+        addWaypoints: false,
+        draggableWaypoints: false,
+        show: false, // On cache le panneau d'instructions
+        createMarker: function () { return null; }, // On utilise nos propres marqueurs
+        lineOptions: {
+            styles: [
+                {
+                    color: "#dc3545",
+                    weight: 5,
+                    opacity: 0.8
+                }
+            ]
+        },
+        router: L.Routing.osrmv1({
+            serviceUrl: "https://router.project-osrm.org/route/v1",
+            profile: "car"
+        })
+    }).addTo(carte);
 }
 
 // ============================================
@@ -113,12 +142,12 @@ function afficherOrdrePassage(poubelles) {
         div.className = "d-flex align-items-center mb-3 p-2 border rounded";
         div.innerHTML =
             '<div style="background-color: #dc3545; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; flex-shrink: 0;">' +
-                (index + 1) +
+            (index + 1) +
             "</div>" +
             "<div>" +
-                "<strong>" + p.nom + "</strong><br>" +
-                '<small class="text-muted">' + (p.adresse || "Pas d'adresse") + "</small><br>" +
-                '<span class="badge bg-danger">Niveau : ' + Math.round(p.niveau) + "%</span>" +
+            "<strong>" + p.nom + "</strong><br>" +
+            '<small class="text-muted">' + (p.adresse || "Pas d'adresse") + "</small><br>" +
+            '<span class="badge bg-danger">Niveau : ' + Math.round(p.niveau) + "%</span>" +
             "</div>";
         conteneur.appendChild(div);
 
