@@ -1,141 +1,142 @@
 <?php
 // ============================================
-// Smart Trash - API Mesures
-// POST /api/mesures.php → Recevoir données capteurs
-// GET  /api/mesures.php → Lire les mesures
-//
-// Alertes multi-critères :
-//   - Niveau > 70%   → alerte "pleine"
-//   - Niveau > 90%   → alerte "critique"
-//   - Poids > 15 kg  → alerte "surcharge"
-//   - Temp > 40°C    → alerte "temperature"
-//   - Humidité > 80% → alerte "humidite"
+// Smart Trash — API REST
+// POST /api/mesures.php
+// Réception des données capteurs + alertes
+// automatiques avec anti-doublon (transaction)
 // ============================================
 
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/fonctions.php';
+require_once 'config/database.php';
+require_once 'fonctions.php';
 
-// Gérer les requêtes OPTIONS (CORS)
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    reponseJSON("success", null, 200);
+header('Content-Type: application/json');
+verifierSession();
+verifierMethode('POST');
+
+// Récupérer et valider les données JSON
+$data = recupererJSON();
+
+if (!isset($data['id_poubelle'], $data['niveau'], $data['poids'],
+    $data['temperature'], $data['humidite'])) {
+    reponseJSON('error', null, 'Données manquantes');
+    exit;
+}
+
+$id_poubelle = intval($data['id_poubelle']);
+$niveau      = floatval($data['niveau']);
+$poids       = floatval($data['poids']);
+$temperature = floatval($data['temperature']);
+$humidite    = floatval($data['humidite']);
+
+// Vérifier que la poubelle existe
+$check = $pdo->prepare("SELECT id FROM poubelles WHERE id = :id AND statut = 'actif'");
+$check->execute(['id' => $id_poubelle]);
+if ($check->rowCount() === 0) {
+    reponseJSON('error', null, 'Poubelle introuvable ou inactive');
+    exit;
 }
 
 // ============================================
-// POST : Recevoir les données d'un capteur
+// Insérer la mesure
 // ============================================
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$stmt = $pdo->prepare(
+    "INSERT INTO mesures (id_poubelle, niveau, poids, temperature, humidite, date_mesure)
+     VALUES (:id_poubelle, :niveau, :poids, :temperature, :humidite, NOW())"
+);
+$stmt->execute([
+    'id_poubelle' => $id_poubelle,
+    'niveau'      => $niveau,
+    'poids'       => $poids,
+    'temperature' => $temperature,
+    'humidite'    => $humidite
+]);
 
-    $data = recupererJSON();
+// ============================================
+// Créer les alertes automatiques sans doublon
+// Utilisation d'une transaction SQL pour éviter
+// les race conditions (double déclenchement)
+// ============================================
 
-    // Vérifier les champs obligatoires
-    if (!isset($data['id_poubelle']) || !isset($data['niveau']) ||
-        !isset($data['poids']) || !isset($data['temperature'])) {
-        reponseJSON("error", "Champs manquants : id_poubelle, niveau, poids, temperature", 400);
+/**
+ * Crée une alerte seulement si aucune alerte
+ * active du même type n'existe déjà pour
+ * cette poubelle (BEGIN / COMMIT / ROLLBACK)
+ */
+function creerAlerteSansDoublon($pdo, $id_poubelle, $type, $message) {
+    $pdo->beginTransaction();
+    try {
+        // Vérifier l'existence d'une alerte active du même type
+        $check = $pdo->prepare(
+            "SELECT id FROM alertes
+             WHERE  id_poubelle = :id_poubelle
+             AND    type_alerte = :type
+             AND    statut      = 'active'"
+        );
+        $check->execute([
+            'id_poubelle' => $id_poubelle,
+            'type'        => $type
+        ]);
+
+        // Créer seulement si aucune alerte active n'existe déjà
+        if ($check->rowCount() === 0) {
+            $insert = $pdo->prepare(
+                "INSERT INTO alertes
+                    (id_poubelle, type_alerte, message, statut, date_creation)
+                 VALUES
+                    (:id_poubelle, :type, :message, 'active', NOW())"
+            );
+            $insert->execute([
+                'id_poubelle' => $id_poubelle,
+                'type'        => $type,
+                'message'     => $message
+            ]);
+        }
+
+        $pdo->commit();
+    } catch (Exception $e) {
+        $pdo->rollBack();
     }
-
-    // Récupérer et valider les valeurs
-    $idPoubelle  = intval($data['id_poubelle']);
-    $niveau      = floatval($data['niveau']);
-    $poids       = floatval($data['poids']);
-    $temperature = floatval($data['temperature']);
-    $humidite    = isset($data['humidite']) ? floatval($data['humidite']) : null;
-
-    // Vérifier que la poubelle existe
-    $stmt = $pdo->prepare("SELECT id FROM poubelles WHERE id = :id");
-    $stmt->execute(['id' => $idPoubelle]);
-    if (!$stmt->fetch()) {
-        reponseJSON("error", "Poubelle introuvable", 404);
-    }
-
-    // Insérer la mesure dans la base
-    $sql = "INSERT INTO mesures (id_poubelle, niveau, poids, temperature, humidite) 
-            VALUES (:id_poubelle, :niveau, :poids, :temperature, :humidite)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        'id_poubelle' => $idPoubelle,
-        'niveau'      => $niveau,
-        'poids'       => $poids,
-        'temperature' => $temperature,
-        'humidite'    => $humidite
-    ]);
-
-    // ============================================
-    // Alertes multi-critères
-    // ============================================
-
-    // Alerte niveau > 90% (critique)
-    if ($niveau > 90) {
-        creerAlerte($pdo, $idPoubelle, 'critique', "Niveau critique à " . round($niveau) . "%");
-    }
-    // Alerte niveau > 70% (pleine)
-    else if ($niveau > 70) {
-        creerAlerte($pdo, $idPoubelle, 'pleine', "Niveau de remplissage à " . round($niveau) . "%");
-    }
-
-    // Alerte surcharge (poids > 15 kg)
-    if ($poids > 15) {
-        creerAlerte($pdo, $idPoubelle, 'surcharge', "Poids élevé : " . round($poids, 1) . " kg");
-    }
-
-    // Alerte température (> 40°C)
-    if ($temperature > 40) {
-        creerAlerte($pdo, $idPoubelle, 'temperature', "Température élevée : " . round($temperature, 1) . "°C");
-    }
-
-    // Alerte humidité (> 80%)
-    if ($humidite !== null && $humidite > 80) {
-        creerAlerte($pdo, $idPoubelle, 'humidite', "Humidité élevée : " . round($humidite, 1) . "%");
-    }
-
-    reponseJSON("success", ["message" => "Mesure enregistrée", "id" => $pdo->lastInsertId()], 201);
 }
 
-// ============================================
-// GET : Récupérer les mesures
-// ============================================
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+// ---- Seuils d'alerte ----
 
-    $idPoubelle = isset($_GET['id_poubelle']) ? intval($_GET['id_poubelle']) : null;
-    $limite     = isset($_GET['limite']) ? intval($_GET['limite']) : 50;
-
-    if ($idPoubelle) {
-        $sql = "SELECT m.*, p.nom AS nom_poubelle 
-                FROM mesures m 
-                JOIN poubelles p ON m.id_poubelle = p.id 
-                WHERE m.id_poubelle = :id 
-                ORDER BY m.date_mesure DESC 
-                LIMIT :limite";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue('id', $idPoubelle, PDO::PARAM_INT);
-        $stmt->bindValue('limite', $limite, PDO::PARAM_INT);
-    } else {
-        $sql = "SELECT m.*, p.nom AS nom_poubelle 
-                FROM mesures m 
-                JOIN poubelles p ON m.id_poubelle = p.id 
-                ORDER BY m.date_mesure DESC 
-                LIMIT :limite";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue('limite', $limite, PDO::PARAM_INT);
-    }
-
-    $stmt->execute();
-    $mesures = $stmt->fetchAll();
-
-    reponseJSON("success", $mesures);
+// Niveau critique > 90%
+if ($niveau > 90) {
+    creerAlerteSansDoublon(
+        $pdo, $id_poubelle, 'critique',
+        "Niveau critique à " . round($niveau) . "%"
+    );
+}
+// Niveau plein > 70%
+elseif ($niveau > 70) {
+    creerAlerteSansDoublon(
+        $pdo, $id_poubelle, 'pleine',
+        "Niveau de remplissage à " . round($niveau) . "%"
+    );
 }
 
-// ============================================
-// Fonction pour créer une alerte
-// ============================================
-function creerAlerte($pdo, $idPoubelle, $type, $message) {
-    $sql = "INSERT INTO alertes (id_poubelle, type_alerte, message, statut)
-            VALUES (:id, :type, :message, 'active')";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        'id'      => $idPoubelle,
-        'type'    => $type,
-        'message' => $message
-    ]);
+// Surcharge > 15 kg
+if ($poids > 15) {
+    creerAlerteSansDoublon(
+        $pdo, $id_poubelle, 'surcharge',
+        "Poids élevé : " . round($poids, 1) . " kg"
+    );
 }
 
-reponseJSON("error", "Méthode non autorisée", 405);
+// Température > 40°C
+if ($temperature > 40) {
+    creerAlerteSansDoublon(
+        $pdo, $id_poubelle, 'temperature',
+        "Température élevée : " . round($temperature, 1) . "°C"
+    );
+}
+
+// Humidité > 80%
+if ($humidite > 80) {
+    creerAlerteSansDoublon(
+        $pdo, $id_poubelle, 'humidite',
+        "Humidité élevée : " . round($humidite, 1) . "%"
+    );
+}
+
+reponseJSON('success', ['message' => 'Mesure enregistrée'], null, 201);

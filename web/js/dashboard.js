@@ -1,5 +1,8 @@
 // ============================================
-// Smart Trash - Dashboard
+// Smart Trash — Dashboard
+// Chargement des données via fetch()
+// console.time() mesure le temps de réponse
+// Objectif : < 500 ms par appel
 // ============================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -8,116 +11,144 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ============================================
-// Charger le résumé global (cartes du haut)
+// Chargement des cartes de résumé
 // ============================================
 async function chargerResume() {
+    console.time("fetch-resume");
     try {
         var response = await fetch("/api/statistiques.php?type=global");
         var resultat = await response.json();
+        console.timeEnd("fetch-resume");
 
         if (resultat.status === "success") {
-            var data = resultat.data;
+            var d = resultat.data;
+            document.getElementById("totalPoubelles").textContent = d.total_poubelles   || 0;
+            document.getElementById("alertesActives").textContent = d.alertes_actives   || 0;
+            document.getElementById("aCollecter").textContent     = d.a_collecter       || 0;
 
-            document.getElementById("totalPoubelles").textContent = data.total_poubelles;
-            document.getElementById("alertesActives").textContent = data.alertes_actives;
-            document.getElementById("poubellesACollecter").textContent = data.poubelles_a_collecter;
-
-            var barre = document.getElementById("barreNiveauMoyen");
-            barre.style.width = data.niveau_moyen + "%";
-            barre.textContent = data.niveau_moyen + "%";
-            barre.className = "progress-bar " + couleurNiveau(data.niveau_moyen);
+            // Barre de progression niveau moyen
+            var niveau = d.niveau_moyen || 0;
+            var barre  = document.getElementById("barreNiveau");
+            var label  = document.getElementById("labelNiveau");
+            if (barre) {
+                barre.style.width = niveau + "%";
+                barre.className   = "progress-bar " + classCouleurNiveau(niveau);
+                barre.setAttribute("aria-valuenow", niveau);
+            }
+            if (label) {
+                label.textContent = "Niveau moyen : " + niveau.toFixed(1) + "%";
+            }
         }
     } catch (err) {
-        console.error("Erreur chargement résumé :", err);
+        console.timeEnd("fetch-resume");
+        console.error("Erreur chargerResume :", err);
     }
 }
 
 // ============================================
-// Charger la liste des poubelles
+// Chargement du tableau des poubelles
 // ============================================
 async function chargerPoubelles() {
+    console.time("fetch-poubelles");
     try {
         var response = await fetch("/api/poubelles.php");
         var resultat = await response.json();
+        console.timeEnd("fetch-poubelles");
 
         if (resultat.status === "success") {
             var tbody = document.getElementById("tablePoubelles");
+            if (!tbody) return;
             tbody.innerHTML = "";
 
             resultat.data.forEach(function (p) {
-                var niveau = p.dernier_niveau ? parseFloat(p.dernier_niveau) : 0;
-                var poids = p.dernier_poids ? parseFloat(p.dernier_poids) : 0;
-                var temp = p.derniere_temperature ? parseFloat(p.derniere_temperature) : 0;
-                var humidite = p.derniere_humidite ? parseFloat(p.derniere_humidite) : 0;
-
                 var tr = document.createElement("tr");
                 tr.innerHTML =
-                    "<td><strong>" + p.nom + "</strong></td>" +
-                    "<td>" + (p.adresse || "-") + "</td>" +
-                    "<td>" +
-                    '<div class="progress progress-niveau" style="min-width:100px">' +
-                    '<div class="progress-bar ' + couleurNiveau(niveau) + '" style="width:' + niveau + '%">' +
-                    Math.round(niveau) + "%" +
-                    "</div>" +
-                    "</div>" +
-                    "</td>" +
-                    "<td>" + badgePoids(poids) + "</td>" +
-                    "<td>" + badgeTemperature(temp) + "</td>" +
-                    "<td>" + badgeHumidite(humidite) + "</td>" +
+                    "<td>" + (p.nom || "\u2014") + "</td>" +
+                    "<td>" + (p.adresse || "\u2014") + "</td>" +
+                    "<td>" + barreNiveau(p.dernier_niveau) + "</td>" +
+                    "<td>" + badgePoids(p.dernier_poids) + "</td>" +
+                    "<td>" + badgeTemperature(p.derniere_temperature) + "</td>" +
+                    "<td>" + badgeHumidite(p.derniere_humidite) + "</td>" +
                     "<td>" + badgeStatut(p.statut) + "</td>" +
-                    "<td>" + formaterDate(p.derniere_mesure) + "</td>";
-
+                    "<td>" + formatDate(p.derniere_mesure) + "</td>";
                 tbody.appendChild(tr);
             });
         }
     } catch (err) {
-        console.error("Erreur chargement poubelles :", err);
+        console.timeEnd("fetch-poubelles");
+        console.error("Erreur chargerPoubelles :", err);
     }
 }
 
 // ============================================
-// Fonctions utilitaires d'affichage
+// Badges colorés — niveau
 // ============================================
-
-// Couleur de la barre selon le niveau
-function couleurNiveau(niveau) {
+function classCouleurNiveau(niveau) {
+    if (!niveau) return "bg-secondary";
     if (niveau > 90) return "bg-danger";
     if (niveau > 70) return "bg-warning";
     return "bg-success";
 }
 
-// Badge pour le poids (avec alerte si > 15 kg)
+function barreNiveau(niveau) {
+    if (niveau === null || niveau === undefined) return "\u2014";
+    var n   = parseFloat(niveau).toFixed(1);
+    var cls = classCouleurNiveau(parseFloat(niveau));
+    return '<div class="progress" style="min-width:80px">' +
+        '<div class="progress-bar ' + cls + '" style="width:' + n + '%">' +
+        n + '%</div></div>';
+}
+
+// ============================================
+// Badges colorés — poids
+// ============================================
 function badgePoids(poids) {
-    if (poids > 15) return '<span class="badge bg-danger">' + poids.toFixed(1) + ' kg</span>';
-    if (poids > 10) return '<span class="badge bg-warning text-dark">' + poids.toFixed(1) + ' kg</span>';
-    return poids.toFixed(1) + " kg";
+    if (poids === null || poids === undefined) return "\u2014";
+    var v = parseFloat(poids).toFixed(1);
+    if (parseFloat(poids) > 15) return '<span class="badge bg-danger">' + v + ' kg</span>';
+    if (parseFloat(poids) > 10) return '<span class="badge bg-warning text-dark">' + v + ' kg</span>';
+    return v + " kg";
 }
 
-// Badge pour la température (avec alerte si > 40°C)
+// ============================================
+// Badges colorés — température
+// ============================================
 function badgeTemperature(temp) {
-    if (temp > 40) return '<span class="badge bg-danger">' + temp.toFixed(1) + ' °C</span>';
-    if (temp > 30) return '<span class="badge bg-warning text-dark">' + temp.toFixed(1) + ' °C</span>';
-    return temp.toFixed(1) + " °C";
+    if (temp === null || temp === undefined) return "\u2014";
+    var v = parseFloat(temp).toFixed(1);
+    if (parseFloat(temp) > 40) return '<span class="badge bg-danger">' + v + ' °C</span>';
+    if (parseFloat(temp) > 30) return '<span class="badge bg-warning text-dark">' + v + ' °C</span>';
+    return v + " °C";
 }
 
-// Badge pour l'humidité (avec alerte si > 80%)
+// ============================================
+// Badges colorés — humidité
+// ============================================
 function badgeHumidite(humidite) {
-    if (humidite > 80) return '<span class="badge bg-danger">' + humidite.toFixed(1) + ' %</span>';
-    if (humidite > 60) return '<span class="badge bg-warning text-dark">' + humidite.toFixed(1) + ' %</span>';
-    if (humidite === 0) return "-";
-    return humidite.toFixed(1) + " %";
+    if (humidite === null || humidite === undefined) return "\u2014";
+    var v = parseFloat(humidite).toFixed(1);
+    if (parseFloat(humidite) > 80) return '<span class="badge bg-danger">' + v + ' %</span>';
+    if (parseFloat(humidite) > 60) return '<span class="badge bg-warning text-dark">' + v + ' %</span>';
+    return v + " %";
 }
 
-// Badge pour le statut
+// ============================================
+// Badge statut
+// ============================================
 function badgeStatut(statut) {
-    if (statut === "actif") return '<span class="badge bg-success">Actif</span>';
-    if (statut === "maintenance") return '<span class="badge bg-warning">Maintenance</span>';
-    return '<span class="badge bg-secondary">Inactif</span>';
+    if (!statut) return "\u2014";
+    if (statut === "actif")       return '<span class="badge bg-success">Actif</span>';
+    if (statut === "maintenance") return '<span class="badge bg-warning text-dark">Maintenance</span>';
+    if (statut === "inactif")     return '<span class="badge bg-secondary">Inactif</span>';
+    return statut;
 }
 
-// Formater une date MySQL pour l'affichage
-function formaterDate(dateStr) {
-    if (!dateStr) return "-";
+// ============================================
+// Formatage de date
+// ============================================
+function formatDate(dateStr) {
+    if (!dateStr) return "\u2014";
     var d = new Date(dateStr);
-    return d.toLocaleDateString("fr-FR") + " " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleDateString("fr-FR") + " " +
+        d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 }

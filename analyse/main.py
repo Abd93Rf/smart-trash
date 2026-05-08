@@ -1,4 +1,4 @@
-# ============================================
+============================================
 # Smart Trash - Script principal d'analyse
 # Lance toutes les analyses en une seule commande
 #

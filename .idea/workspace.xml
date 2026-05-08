@@ -2,11 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/passerelle_mqtt.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_charge.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/itineraire.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/itineraire.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/itineraire.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/itineraire.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analyse/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyse/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/alertes.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/alertes.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/mesures.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/mesures.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/js/admin.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/admin.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/js/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/dashboard.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,6 +54,18 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -83,7 +99,14 @@
       <workItem from="1776708414985" duration="2756000" />
       <workItem from="1777239064611" duration="418000" />
       <workItem from="1777240514045" duration="1282000" />
-      <workItem from="1777325089275" duration="1499000" />
+      <workItem from="1777325089275" duration="3548000" />
+      <workItem from="1777395851900" duration="1162000" />
+      <workItem from="1777411380918" duration="1080000" />
+      <workItem from="1777829246319" duration="774000" />
+      <workItem from="1777928521297" duration="597000" />
+      <workItem from="1778063332255" duration="2956000" />
+      <workItem from="1778172448782" duration="2300000" />
+      <workItem from="1778243420430" duration="5668000" />
     </task>
     <servers />
   </component>

@@ -1,4 +1,4 @@
-version: '3.8' # Version du format Docker Compose
+version: '3' # Version du format Docker Compose
 services:
 
   # ============================================

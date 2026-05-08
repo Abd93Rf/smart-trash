@@ -1,9 +1,12 @@
 // ============================================
-// Smart Trash - Administration
+// Smart Trash — Page Admin (CRUD)
+// Gestion des poubelles via fetch()
+// console.time() mesure le temps de réponse
+// Objectif : < 500 ms par appel
 // ============================================
 
-// Mode actuel : "ajout" ou "modification"
-var modeEdition = "ajout";
+var modeEdition = "ajout";  // "ajout" ou "modification"
+var poubelleId  = null;
 
 document.addEventListener("DOMContentLoaded", function () {
     chargerPoubelles();
@@ -13,167 +16,166 @@ document.addEventListener("DOMContentLoaded", function () {
 // Charger la liste des poubelles
 // ============================================
 async function chargerPoubelles() {
+    console.time("fetch-admin-liste");
     try {
         var response = await fetch("/api/poubelles.php");
         var resultat = await response.json();
+        console.timeEnd("fetch-admin-liste");
 
         if (resultat.status === "success") {
             var tbody = document.getElementById("tableAdmin");
+            if (!tbody) return;
             tbody.innerHTML = "";
 
             resultat.data.forEach(function (p) {
                 var tr = document.createElement("tr");
                 tr.innerHTML =
                     "<td>" + p.id + "</td>" +
-                    "<td><strong>" + p.nom + "</strong></td>" +
-                    "<td>" + (p.adresse || "-") + "</td>" +
-                    "<td>" + p.latitude + "</td>" +
-                    "<td>" + p.longitude + "</td>" +
+                    "<td>" + (p.nom || "\u2014") + "</td>" +
+                    "<td>" + (p.adresse || "\u2014") + "</td>" +
+                    "<td>" + (p.latitude || "\u2014") + "</td>" +
+                    "<td>" + (p.longitude || "\u2014") + "</td>" +
                     "<td>" + badgeStatut(p.statut) + "</td>" +
                     "<td>" +
-                        '<button class="btn btn-primary btn-sm me-1" onclick="ouvrirModification(' + p.id + ')">' +
-                            '<i class="bi bi-pencil"></i>' +
-                        "</button>" +
-                        '<button class="btn btn-danger btn-sm" onclick="supprimerPoubelle(' + p.id + ', \'' + p.nom + '\')">' +
-                            '<i class="bi bi-trash"></i>' +
-                        "</button>" +
+                    '<button class="btn btn-sm btn-outline-primary me-1" ' +
+                    'onclick="ouvrirModification(' + p.id + ')">' +
+                    '<i class="bi bi-pencil"></i></button>' +
+                    '<button class="btn btn-sm btn-outline-danger" ' +
+                    'onclick="supprimerPoubelle(' + p.id + ')">' +
+                    '<i class="bi bi-trash"></i></button>' +
                     "</td>";
                 tbody.appendChild(tr);
             });
         }
     } catch (err) {
-        console.error("Erreur chargement poubelles :", err);
+        console.timeEnd("fetch-admin-liste");
+        console.error("Erreur chargerPoubelles :", err);
     }
 }
 
 // ============================================
-// Ouvrir le modal en mode Ajout
+// Ouvrir le modal en mode ajout
 // ============================================
 function ouvrirAjout() {
     modeEdition = "ajout";
-    document.getElementById("titreModal").textContent = "Ajouter une poubelle";
-
-    // Vider les champs
-    document.getElementById("poubelleId").value = "";
-    document.getElementById("poubelleNom").value = "";
-    document.getElementById("poubelleAdresse").value = "";
-    document.getElementById("poubelleLatitude").value = "";
-    document.getElementById("poubelleLongitude").value = "";
-    document.getElementById("poubelleStatut").value = "actif";
+    poubelleId  = null;
+    document.getElementById("formPoubelle").reset();
+    document.getElementById("modalTitre").textContent = "Ajouter une poubelle";
+    var modal = new bootstrap.Modal(document.getElementById("modalPoubelle"));
+    modal.show();
 }
 
 // ============================================
-// Ouvrir le modal en mode Modification
+// Ouvrir le modal en mode modification
 // ============================================
 async function ouvrirModification(id) {
-    modeEdition = "modification";
-    document.getElementById("titreModal").textContent = "Modifier la poubelle";
-
+    console.time("fetch-admin-detail");
     try {
         var response = await fetch("/api/poubelles.php?id=" + id);
         var resultat = await response.json();
+        console.timeEnd("fetch-admin-detail");
 
         if (resultat.status === "success") {
             var p = resultat.data;
-            document.getElementById("poubelleId").value = p.id;
-            document.getElementById("poubelleNom").value = p.nom;
-            document.getElementById("poubelleAdresse").value = p.adresse || "";
-            document.getElementById("poubelleLatitude").value = p.latitude;
-            document.getElementById("poubelleLongitude").value = p.longitude;
-            document.getElementById("poubelleStatut").value = p.statut;
+            modeEdition = "modification";
+            poubelleId  = id;
 
-            // Ouvrir le modal
+            document.getElementById("champNom").value       = p.nom       || "";
+            document.getElementById("champAdresse").value   = p.adresse   || "";
+            document.getElementById("champLatitude").value  = p.latitude  || "";
+            document.getElementById("champLongitude").value = p.longitude || "";
+            document.getElementById("champStatut").value    = p.statut    || "actif";
+            document.getElementById("modalTitre").textContent = "Modifier une poubelle";
+
             var modal = new bootstrap.Modal(document.getElementById("modalPoubelle"));
             modal.show();
         }
     } catch (err) {
-        console.error("Erreur chargement poubelle :", err);
+        console.timeEnd("fetch-admin-detail");
+        console.error("Erreur ouvrirModification :", err);
     }
 }
 
 // ============================================
-// Sauvegarder (Ajouter ou Modifier)
+// Sauvegarder (ajout ou modification)
 // ============================================
 async function sauvegarderPoubelle() {
-    // Récupérer les valeurs du formulaire
     var donnees = {
-        nom: document.getElementById("poubelleNom").value,
-        adresse: document.getElementById("poubelleAdresse").value,
-        latitude: parseFloat(document.getElementById("poubelleLatitude").value),
-        longitude: parseFloat(document.getElementById("poubelleLongitude").value),
-        statut: document.getElementById("poubelleStatut").value
+        nom:       document.getElementById("champNom").value.trim(),
+        adresse:   document.getElementById("champAdresse").value.trim(),
+        latitude:  parseFloat(document.getElementById("champLatitude").value),
+        longitude: parseFloat(document.getElementById("champLongitude").value),
+        statut:    document.getElementById("champStatut").value
     };
 
-    // Vérifier les champs obligatoires
-    if (!donnees.nom || isNaN(donnees.latitude) || isNaN(donnees.longitude)) {
-        alert("Veuillez remplir le nom, la latitude et la longitude.");
+    if (!donnees.nom) {
+        alert("Le nom de la poubelle est obligatoire.");
         return;
     }
 
+    var methode = modeEdition === "ajout" ? "POST" : "PUT";
+    var url     = modeEdition === "ajout"
+        ? "/api/poubelles.php"
+        : "/api/poubelles.php?id=" + poubelleId;
+
+    console.time("fetch-admin-sauvegarde");
     try {
-        var url, methode;
-
-        if (modeEdition === "ajout") {
-            url = "/api/poubelles.php";
-            methode = "POST";
-        } else {
-            var id = document.getElementById("poubelleId").value;
-            url = "/api/poubelles.php?id=" + id;
-            methode = "PUT";
-        }
-
         var response = await fetch(url, {
-            method: methode,
+            method:  methode,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(donnees)
+            body:    JSON.stringify(donnees)
         });
-
         var resultat = await response.json();
+        console.timeEnd("fetch-admin-sauvegarde");
 
         if (resultat.status === "success") {
             // Fermer le modal
-            var modal = bootstrap.Modal.getInstance(document.getElementById("modalPoubelle"));
-            modal.hide();
-
-            // Recharger la liste
+            var modalEl  = document.getElementById("modalPoubelle");
+            var instance = bootstrap.Modal.getInstance(modalEl);
+            if (instance) instance.hide();
+            // Rafraîchir le tableau
             chargerPoubelles();
         } else {
-            alert("Erreur : " + resultat.message);
+            alert("Erreur : " + (resultat.message || "Impossible de sauvegarder."));
         }
     } catch (err) {
-        console.error("Erreur sauvegarde :", err);
-        alert("Erreur de connexion au serveur.");
+        console.timeEnd("fetch-admin-sauvegarde");
+        console.error("Erreur sauvegarderPoubelle :", err);
     }
 }
 
 // ============================================
 // Supprimer une poubelle
 // ============================================
-async function supprimerPoubelle(id, nom) {
-    if (!confirm("Supprimer la poubelle \"" + nom + "\" ? Cette action est irréversible.")) {
-        return;
-    }
+async function supprimerPoubelle(id) {
+    if (!confirm("Confirmer la suppression de cette poubelle ?")) return;
 
+    console.time("fetch-admin-suppression");
     try {
         var response = await fetch("/api/poubelles.php?id=" + id, {
             method: "DELETE"
         });
-
         var resultat = await response.json();
+        console.timeEnd("fetch-admin-suppression");
 
         if (resultat.status === "success") {
             chargerPoubelles();
         } else {
-            alert("Erreur : " + resultat.message);
+            alert("Erreur : " + (resultat.message || "Impossible de supprimer."));
         }
     } catch (err) {
-        console.error("Erreur suppression :", err);
+        console.timeEnd("fetch-admin-suppression");
+        console.error("Erreur supprimerPoubelle :", err);
     }
 }
 
-// Badge pour le statut
+// ============================================
+// Badge statut
+// ============================================
 function badgeStatut(statut) {
-    if (statut === "actif") return '<span class="badge bg-success">Actif</span>';
-    if (statut === "maintenance") return '<span class="badge bg-warning">Maintenance</span>';
-    return '<span class="badge bg-secondary">Inactif</span>';
+    if (!statut) return "\u2014";
+    if (statut === "actif")       return '<span class="badge bg-success">Actif</span>';
+    if (statut === "maintenance") return '<span class="badge bg-warning text-dark">Maintenance</span>';
+    if (statut === "inactif")     return '<span class="badge bg-secondary">Inactif</span>';
+    return statut;
 }

@@ -64,5 +64,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
     reponseJSON("success", ["message" => "Alerte résolue"]);
 }
-
 reponseJSON("error", "Méthode non autorisée", 405);
