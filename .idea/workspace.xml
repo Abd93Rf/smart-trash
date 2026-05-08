@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/passerelle_mqtt.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_charge.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analyse/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/analyse/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/alertes.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/alertes.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/mesures.php" beforeDir="false" afterPath="$PROJECT_DIR$/api/mesures.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/admin.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/admin.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/js/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/dashboard.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,19 +26,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/elrao/OneDrive/Documents/smart-trash&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "Merging main",
+    "last_opened_file_path": "C:/Users/elrao/OneDrive/Documents/smart-trash",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
@@ -106,7 +98,7 @@
       <workItem from="1777928521297" duration="597000" />
       <workItem from="1778063332255" duration="2956000" />
       <workItem from="1778172448782" duration="2300000" />
-      <workItem from="1778243420430" duration="5668000" />
+      <workItem from="1778243420430" duration="5986000" />
     </task>
     <servers />
   </component>
