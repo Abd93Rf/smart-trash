@@ -10,12 +10,33 @@
 #include "HX711.h"
 
 // ============================================
-// Configuration WiFi + MQTT (NE PAS MODIFIER)
+// CONFIGURATION — À MODIFIER PAR ESP32
 // ============================================
-const char* ssid = "SmartTrash_Wifi";
+
+// Identifiant de la poubelle associée en base
+// Changer cette valeur pour chaque ESP32 déployé (1, 2, 3...)
+#define POUBELLE_ID 1
+
+// Facteur de calibration HX711 (cellule de charge)
+// Procédure : poser un poids connu, lire la valeur brute,
+// puis : CALIBRATION = valeur_brute / poids_reel_en_kg
+// Exemple : valeur brute 42000 pour 2 kg → CALIBRATION = 21000.0
+#define CALIBRATION_HX711 21000.0f  // TODO : à ajuster après calibration physique
+
+// Profondeur utile de la poubelle en cm (distance = vide, 0 = pleine)
+#define PROFONDEUR_POUBELLE 50
+
+// Réseau WiFi du Raspberry Pi (point d'accès dédié)
+// ⚠️  Ne pas committer ce fichier sur un dépôt public
+const char* ssid     = "SmartTrash_Wifi";
 const char* password = "poubelle2026";
+
+// Adresse IP du broker Mosquitto (Raspberry Pi)
 const char* mqtt_server = "192.168.4.1";
 
+// ============================================
+// Réseau (IP statique — NE PAS MODIFIER)
+// ============================================
 IPAddress local_IP(192, 168, 4, 3);
 IPAddress gateway(192, 168, 4, 1);
 IPAddress subnet(255, 255, 255, 0);
@@ -26,29 +47,29 @@ PubSubClient client(espClient);
 // ============================================
 // Pins HC-SR04 (ultrason) - CALIBRE
 // ============================================
-int trigPin = 26;
-int echoPin = 33;
-int ledPin = 19;   // LED verte (poubelle vide)
-int ledPin2 = 18;  // LED rouge (poubelle pleine)
+int trigPin  = 26;
+int echoPin  = 33;
+int ledPin   = 19;  // LED verte (poubelle vide)
+int ledPin2  = 18;  // LED rouge (poubelle pleine)
 
 long duration;
-int distance = 0;
+int  distance = 0;
 
 // ============================================
 // Pins DHT22 (temperature + humidite)
 // ============================================
-#define DHTPIN 4
+#define DHTPIN  4
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 
 float temperature = 0.0;
-float humidite = 0.0;
+float humidite    = 0.0;
 
 // ============================================
-// Pins HX711 (poids) - CALIBRE
+// Pins HX711 (poids)
 // ============================================
 const int LOADCELL_DOUT_PIN = 23;
-const int LOADCELL_SCK_PIN = 22;
+const int LOADCELL_SCK_PIN  = 22;
 HX711 echelle;
 float poids = 0.0;
 
@@ -56,7 +77,7 @@ float poids = 0.0;
 // Intervalle d'envoi MQTT
 // ============================================
 unsigned long dernierEnvoiMqtt = 0;
-const long intervalleEnvoi = 2000;
+const long    intervalleEnvoi  = 2000;
 
 // ============================================
 // Lecture ultrason (NE PAS MODIFIER - CALIBRE)
@@ -81,14 +102,14 @@ void processUltrasonic() {
     distance = nouvelleDistance;
   }
 
-  if (distance < 50) {
+  if (distance < PROFONDEUR_POUBELLE) {
     // Poubelle pleine
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(ledPin,  HIGH);
     digitalWrite(ledPin2, LOW);
   } else {
     // Poubelle vide
     digitalWrite(ledPin2, HIGH);
-    digitalWrite(ledPin, LOW);
+    digitalWrite(ledPin,  LOW);
   }
 }
 
@@ -99,9 +120,8 @@ void processDHT() {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
 
-  // Verifier que les valeurs sont valides
   if (!isnan(h) && !isnan(t)) {
-    humidite = h;
+    humidite    = h;
     temperature = t;
   }
 }
@@ -112,7 +132,6 @@ void processDHT() {
 void processWeight() {
   if (echelle.is_ready()) {
     float lecture = echelle.get_units(5);
-    // Ignorer les valeurs negatives (bruit du capteur)
     if (lecture >= 0) {
       poids = lecture;
     }
@@ -123,9 +142,12 @@ void processWeight() {
 // Reconnexion MQTT (NE PAS MODIFIER)
 // ============================================
 void reconnect() {
+  // Identifiant MQTT unique basé sur POUBELLE_ID
+  String clientId = "ESP32_Poubelle_" + String(POUBELLE_ID);
+
   while (!client.connected()) {
     Serial.print("Connexion MQTT...");
-    if (client.connect("ESP32_Poubelle_1")) {
+    if (client.connect(clientId.c_str())) {
       Serial.println("OK");
     } else {
       Serial.print("Erreur, rc=");
@@ -143,7 +165,7 @@ void setup() {
   Serial.begin(115200);
 
   // Pins ultrason
-  pinMode(ledPin, OUTPUT);
+  pinMode(ledPin,  OUTPUT);
   pinMode(ledPin2, OUTPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
@@ -151,12 +173,17 @@ void setup() {
   // Init DHT22
   dht.begin();
 
-  // Init HX711
+  // Init HX711 avec facteur de calibration
   echelle.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
-  echelle.set_scale();  // Calibration deja faite
+  echelle.set_scale(CALIBRATION_HX711);  // Facteur défini dans la config
   echelle.tare();
 
-  // Connexion WiFi (NE PAS MODIFIER)
+  Serial.print("Poubelle ID : ");
+  Serial.println(POUBELLE_ID);
+  Serial.print("Calibration HX711 : ");
+  Serial.println(CALIBRATION_HX711);
+
+  // Connexion WiFi
   WiFi.mode(WIFI_STA);
 
   if (!WiFi.config(local_IP, gateway, subnet)) {
@@ -184,19 +211,16 @@ void setup() {
 // Loop principal
 // ============================================
 void loop() {
-  // Reconnexion MQTT si deconnecte
   if (!client.connected()) {
     reconnect();
   }
 
   client.loop();
 
-  // Lecture des 3 capteurs
   processUltrasonic();
   processDHT();
   processWeight();
 
-  // Affichage console
   Serial.print("Distance: ");
   Serial.print(distance);
   Serial.print(" cm | Poids: ");
@@ -207,25 +231,21 @@ void loop() {
   Serial.print(humidite, 1);
   Serial.println(" %");
 
-  // Envoi MQTT a intervalle regulier
   if (millis() - dernierEnvoiMqtt >= intervalleEnvoi) {
     dernierEnvoiMqtt = millis();
 
-    // Calcul du niveau (0-100%) a partir de la distance
-    int niveau = map(distance, 50, 0, 0, 100);
+    int niveau = map(distance, PROFONDEUR_POUBELLE, 0, 0, 100);
     niveau = constrain(niveau, 0, 100);
 
-    // Construction du JSON avec les vraies valeurs
     String data = "{";
-    data += "\"id_poubelle\":1,";
-    data += "\"distance\":" + String(distance) + ",";
-    data += "\"niveau\":" + String(niveau) + ",";
-    data += "\"poids\":" + String(poids, 1) + ",";
+    data += "\"id_poubelle\":" + String(POUBELLE_ID) + ",";
+    data += "\"distance\":"    + String(distance)    + ",";
+    data += "\"niveau\":"      + String(niveau)      + ",";
+    data += "\"poids\":"       + String(poids, 1)    + ",";
     data += "\"temperature\":" + String(temperature, 1) + ",";
-    data += "\"humidite\":" + String(humidite, 1);
+    data += "\"humidite\":"    + String(humidite, 1);
     data += "}";
 
-    // Envoi au broker MQTT
     client.publish("smart_trash/data", data.c_str());
 
     Serial.println("Donnees envoyees :");
