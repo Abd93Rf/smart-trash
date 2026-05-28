@@ -10,7 +10,6 @@ require_once 'config/database.php';
 require_once 'fonctions.php';
 
 header('Content-Type: application/json');
-verifierSession();
 verifierMethode('POST');
 
 // Récupérer et valider les données JSON
@@ -18,8 +17,7 @@ $data = recupererJSON();
 
 if (!isset($data['id_poubelle'], $data['niveau'], $data['poids'],
     $data['temperature'], $data['humidite'])) {
-    reponseJSON('error', null, 'Données manquantes');
-    exit;
+    reponseJSON('error', 'Données manquantes', 400);
 }
 
 $id_poubelle = intval($data['id_poubelle']);
@@ -32,8 +30,7 @@ $humidite    = floatval($data['humidite']);
 $check = $pdo->prepare("SELECT id FROM poubelles WHERE id = :id AND statut = 'actif'");
 $check->execute(['id' => $id_poubelle]);
 if ($check->rowCount() === 0) {
-    reponseJSON('error', null, 'Poubelle introuvable ou inactive');
-    exit;
+    reponseJSON('error', 'Poubelle introuvable ou inactive', 404);
 }
 
 // ============================================
@@ -139,4 +136,4 @@ if ($humidite > 80) {
     );
 }
 
-reponseJSON('success', ['message' => 'Mesure enregistrée'], null, 201);
+reponseJSON('success', ['message' => 'Mesure enregistrée'], 201);

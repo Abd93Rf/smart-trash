@@ -59,8 +59,12 @@ async function chargerPoubelles() {
 function ouvrirAjout() {
     modeEdition = "ajout";
     poubelleId  = null;
-    document.getElementById("formPoubelle").reset();
-    document.getElementById("modalTitre").textContent = "Ajouter une poubelle";
+    document.getElementById("poubelleNom").value      = "";
+    document.getElementById("poubelleAdresse").value  = "";
+    document.getElementById("poubelleLatitude").value = "";
+    document.getElementById("poubelleLongitude").value= "";
+    document.getElementById("poubelleStatut").value   = "actif";
+    document.getElementById("titreModal").textContent = "Ajouter une poubelle";
     var modal = new bootstrap.Modal(document.getElementById("modalPoubelle"));
     modal.show();
 }
@@ -80,12 +84,12 @@ async function ouvrirModification(id) {
             modeEdition = "modification";
             poubelleId  = id;
 
-            document.getElementById("champNom").value       = p.nom       || "";
-            document.getElementById("champAdresse").value   = p.adresse   || "";
-            document.getElementById("champLatitude").value  = p.latitude  || "";
-            document.getElementById("champLongitude").value = p.longitude || "";
-            document.getElementById("champStatut").value    = p.statut    || "actif";
-            document.getElementById("modalTitre").textContent = "Modifier une poubelle";
+            document.getElementById("poubelleNom").value       = p.nom       || "";
+            document.getElementById("poubelleAdresse").value   = p.adresse   || "";
+            document.getElementById("poubelleLatitude").value  = p.latitude  || "";
+            document.getElementById("poubelleLongitude").value = p.longitude || "";
+            document.getElementById("poubelleStatut").value    = p.statut    || "actif";
+            document.getElementById("titreModal").textContent  = "Modifier une poubelle";
 
             var modal = new bootstrap.Modal(document.getElementById("modalPoubelle"));
             modal.show();
@@ -101,11 +105,11 @@ async function ouvrirModification(id) {
 // ============================================
 async function sauvegarderPoubelle() {
     var donnees = {
-        nom:       document.getElementById("champNom").value.trim(),
-        adresse:   document.getElementById("champAdresse").value.trim(),
-        latitude:  parseFloat(document.getElementById("champLatitude").value),
-        longitude: parseFloat(document.getElementById("champLongitude").value),
-        statut:    document.getElementById("champStatut").value
+        nom:       document.getElementById("poubelleNom").value.trim(),
+        adresse:   document.getElementById("poubelleAdresse").value.trim(),
+        latitude:  parseFloat(document.getElementById("poubelleLatitude").value),
+        longitude: parseFloat(document.getElementById("poubelleLongitude").value),
+        statut:    document.getElementById("poubelleStatut").value
     };
 
     if (!donnees.nom) {

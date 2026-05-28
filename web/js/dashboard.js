@@ -22,21 +22,18 @@ async function chargerResume() {
 
         if (resultat.status === "success") {
             var d = resultat.data;
-            document.getElementById("totalPoubelles").textContent = d.total_poubelles   || 0;
-            document.getElementById("alertesActives").textContent = d.alertes_actives   || 0;
-            document.getElementById("aCollecter").textContent     = d.a_collecter       || 0;
+            document.getElementById("totalPoubelles").textContent      = d.total_poubelles        || 0;
+            document.getElementById("alertesActives").textContent      = d.alertes_actives        || 0;
+            document.getElementById("poubellesACollecter").textContent = d.poubelles_a_collecter  || 0;
 
             // Barre de progression niveau moyen
             var niveau = d.niveau_moyen || 0;
-            var barre  = document.getElementById("barreNiveau");
-            var label  = document.getElementById("labelNiveau");
+            var barre  = document.getElementById("barreNiveauMoyen");
             if (barre) {
                 barre.style.width = niveau + "%";
                 barre.className   = "progress-bar " + classCouleurNiveau(niveau);
                 barre.setAttribute("aria-valuenow", niveau);
-            }
-            if (label) {
-                label.textContent = "Niveau moyen : " + niveau.toFixed(1) + "%";
+                barre.textContent = niveau.toFixed(1) + "%";
             }
         }
     } catch (err) {

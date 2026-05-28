@@ -35,8 +35,8 @@ services:
       MYSQL_DATABASE: smart_trash
       # Plus de MYSQL_ROOT_HOST: '%' — la sécurité est gérée
       # par le script init_user.sql qui crée un utilisateur dédié
-    ports:
-      - "3306:3306"
+    # ports:
+    # - "3306:3306"
     volumes:
       # 1. Création des tables + données de test
       - ./database/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
@@ -47,4 +47,4 @@ services:
 
 networks:
   default:
-    name: smart_trash_network
+    name: smart_trash_wifi

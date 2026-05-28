@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/mesures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/js/admin.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/admin.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/js/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/js/dashboard.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,19 +29,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "Merging main",
-    "last_opened_file_path": "C:/Users/elrao/OneDrive/Documents/smart-trash",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/elrao/OneDrive/Documents/smart-trash&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
@@ -98,7 +101,15 @@
       <workItem from="1777928521297" duration="597000" />
       <workItem from="1778063332255" duration="2956000" />
       <workItem from="1778172448782" duration="2300000" />
-      <workItem from="1778243420430" duration="5986000" />
+      <workItem from="1778243420430" duration="7728000" />
+      <workItem from="1778254577026" duration="1440000" />
+      <workItem from="1778256500806" duration="3259000" />
+      <workItem from="1778361871569" duration="2090000" />
+      <workItem from="1779021309482" duration="7442000" />
+      <workItem from="1779039988140" duration="2429000" />
+      <workItem from="1779657486566" duration="616000" />
+      <workItem from="1779715314287" duration="7167000" />
+      <workItem from="1779890095127" duration="4871000" />
     </task>
     <servers />
   </component>
