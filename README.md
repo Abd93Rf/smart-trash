@@ -103,6 +103,10 @@ Le site web ne se connecte **JAMAIS directement** à la base de données.
 │  └─────────┬──────────┘  │
 │            ↓             │
 │  ┌────────────────────┐  │
+│  │ passerelle_mqtt.py │  │  ← Valide + transmet à l'API
+│  └─────────┬──────────┘  │
+│            ↓             │
+│  ┌────────────────────┐  │
 │  │ API REST PHP       │  │
 │  │ (point d'accès     │  │
 │  │  unique)           │  │
@@ -156,6 +160,18 @@ Collecter et transmettre les données (niveau, poids, température, humidité).
 | **HX711 + cellule** | Capteur de poids | 3.3-5V |
 | **DHT22** | Capteur de température et humidité | 3.3-5V |
 | **Batterie LiPo** | Alimentation autonome | 3.7V |
+
+### Configuration du firmware
+
+Trois constantes à ajuster en haut du fichier `sketch.ino` avant de flasher :
+
+| Constante | Valeur par défaut | Description |
+|-----------|-------------------|-------------|
+| `POUBELLE_ID` | `1` | Identifiant de la poubelle en base — changer pour chaque ESP32 déployé |
+| `CALIBRATION_HX711` | `21000.0` | Facteur de calibration de la cellule de charge — à mesurer physiquement |
+| `PROFONDEUR_POUBELLE` | `50` | Profondeur utile de la poubelle en cm |
+
+> **Calibration HX711 :** poser un poids connu sur la balance, lire la valeur brute affichée dans le moniteur série, puis calculer `CALIBRATION = valeur_brute / poids_reel_en_kg`.
 
 ### Fonctionnalités du firmware
 
@@ -533,12 +549,18 @@ $stmt->execute(['email' => $email]);
 smart-trash/
 │
 ├── esp32/                         ← Code ESP32 + schémas
-│   ├── sketch.ino                 ← Code Arduino
-│   └── diagram.json               ← Schéma Wokwi
+│   ├── sketch.ino                 ← Code Arduino (POUBELLE_ID, CALIBRATION_HX711, PROFONDEUR_POUBELLE)
+│   ├── test_hc-sr04.ino           ← Test capteur ultrason
+│   ├── test_dht22.ino             ← Test capteur température/humidité
+│   └── test_hx711.ino             ← Test cellule de charge
 │
 ├── database/
-│   ├── schema.sql                 ← Tables + données de test
+│   ├── schema.sql                 ← Structure des tables + utilisateur admin uniquement
+│   ├── schema_test_data.sql       ← Données de test (DEV uniquement — ne pas charger en prod)
 │   └── init_user.sql              ← Création utilisateur dédié (sécurité)
+│
+├── _archive/
+│   └── mqtt_to_db_OBSOLETE.py    ← Prototype initial (remplacé par passerelle_mqtt.py)
 │
 ├── api/                           ← Backend (API REST PHP)
 │   ├── config/
@@ -579,6 +601,7 @@ smart-trash/
 │   │   └── admin.js
 │   └── assets/
 │
+├── passerelle_mqtt.py             ← Pont MQTT → API (écoute le broker, valide et transmet)
 ├── docker-compose.yml             ← MariaDB + Apache/PHP + variables env
 ├── README.md                      ← Ce fichier
 ├── GUIDE_PHYSIQUE.md              ← Guide installation matérielle
@@ -622,13 +645,24 @@ Cette commande va :
 - Créer le conteneur `smart_trash_db` (base de données)
 - Créer le conteneur `smart_trash_web` (serveur web + API)
 - Créer la base `smart_trash` automatiquement
-- Exécuter `database/schema.sql` (tables + données de test)
+- Exécuter `database/schema.sql` (tables + utilisateur admin)
 - Exécuter `database/init_user.sql` (utilisateur dédié `smart_user`)
 - Installer l'extension PDO MySQL automatiquement
 - Régénérer le hash du mot de passe admin (via variable d'environnement)
 - Sauvegarder les données dans `db_data/` (persistance)
 
-#### 3. Accéder au site
+#### 3. Charger les données de test (développement uniquement)
+
+La base démarre vide. Pour la peupler avec des données simulées en dev :
+
+```bash
+docker exec -i smart_trash_db mysql -uroot -ppassword smart_trash \
+  < database/schema_test_data.sql
+```
+
+> ⚠️ Ne pas exécuter cette commande sur le Raspberry en production.
+
+#### 4. Accéder au site
 
 **Site web** : http://localhost:8080/web/login.html
 **API** : http://localhost:8080/api/poubelles.php
@@ -637,7 +671,7 @@ Cette commande va :
 - Email : `admin@smarttrash.fr`
 - Mot de passe : `admin123`
 
-#### 4. Vérifier que tout fonctionne
+#### 5. Vérifier que tout fonctionne
 
 ```bash
 # Voir si les conteneurs tournent
@@ -652,7 +686,7 @@ SELECT * FROM poubelles;
 EXIT;
 ```
 
-#### 5. Arrêter le projet
+#### 6. Arrêter le projet
 
 ```bash
 docker-compose down
@@ -739,6 +773,7 @@ curl -X POST http://localhost:8080/api/mesures.php \
 |--------|-------------|------|
 | **Hardware** | ESP32 + capteurs (HC-SR04, HX711, DHT22) | Collecte des données |
 | **Communication** | WiFi + MQTT (Mosquitto) | Transmission au serveur |
+| **Passerelle** | Python (`passerelle_mqtt.py`) | Validation + relais MQTT → API |
 | **Déploiement** | Docker Compose (Apache + PHP + MariaDB) | Lancement en une commande |
 | **Backend** | PHP 8.2 + PDO (API REST) | Stockage, analyse, alertes multi-critères |
 | **Base de données** | MariaDB 10.6 | Historique des mesures et alertes |
