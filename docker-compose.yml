@@ -1,4 +1,3 @@
-version: '3' # Version du format Docker Compose
 services:
 
   # ============================================
@@ -15,11 +14,8 @@ services:
       - ./web:/var/www/html/web
     depends_on:
       - db
-    # Variables d'environnement pour le mot de passe admin
-    # Modifiable ici sans toucher au code PHP
     environment:
       ADMIN_PASSWORD: admin123
-    # Installation PDO MySQL + init mot de passe + démarrage Apache
     command: >
       bash -c "docker-php-ext-install pdo pdo_mysql && php /var/www/html/api/init_password.php && apache2-foreground"
 
@@ -33,17 +29,39 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: smart_trash
-      # Plus de MYSQL_ROOT_HOST: '%' — la sécurité est gérée
-      # par le script init_user.sql qui crée un utilisateur dédié
-    # ports:
-    # - "3306:3306"
     volumes:
-      # 1. Création des tables + données de test
       - ./database/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
-      # 2. Création de l'utilisateur dédié (sécurité)
       - ./database/init_user.sql:/docker-entrypoint-initdb.d/2_init_user.sql
-      # 3. Persistance des données
       - ./db_data:/var/lib/mysql
+
+  # ============================================
+  # Broker MQTT Mosquitto
+  # ============================================
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smart_trash_mqtt
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  # ============================================
+  # Passerelle MQTT → API
+  # ============================================
+  passerelle:
+    image: python:3.11-slim
+    container_name: smart_trash_passerelle
+    restart: always
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: >
+      sh -c "pip install paho-mqtt requests -q &&
+             python3 passerelle_mqtt.py"
+    depends_on:
+      - mosquitto
+      - web
 
 networks:
   default:

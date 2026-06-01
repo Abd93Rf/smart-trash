@@ -12,10 +12,10 @@ import time
 import logging
 
 # Configuration
-BROKER_HOST = "localhost"
+BROKER_HOST = "mosquitto"
 BROKER_PORT = 1883
 TOPIC = "smart_trash/data"
-API_URL = "http://localhost:8080/api/mesures.php"
+API_URL = "http://mosquitto:8080/api/mesures.php"
 MAX_JSON_SIZE = 1024  # Taille max du JSON en octets (1 Ko)
 RECONNECT_DELAY = 5   # Délai entre les tentatives de reconnexion (secondes)
 

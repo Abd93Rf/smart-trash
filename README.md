@@ -790,7 +790,7 @@ curl -X POST http://localhost:8080/api/mesures.php \
 |----------|----------------|
 | **Enzo** | Capteurs + ESP32 + Docker |
 | **Abdul** | Serveur Raspberry Pi + BDD |
-| **Abd-El-Raouf** | Site web + Sécurisation PDO + Documentation API |
+| **Abd-El-Raouf** | Site web + Sécurisation PDO |
 | **Kilian** | WiFi ESP32 + Scripts Python + Optimisation |
 
 ---
