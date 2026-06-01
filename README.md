@@ -601,8 +601,19 @@ smart-trash/
 │   │   └── admin.js
 │   └── assets/
 │
+├── mosquitto/
+│   └── mosquitto.conf             ← Configuration du broker MQTT (port 1883)
+│
+├── apache/
+│   └── ssl.conf                   ← Configuration Apache HTTPS + redirection HTTP→HTTPS
+│
+├── ssl/
+│   ├── generate_cert.sh           ← Script de génération du certificat auto-signé
+│   ├── smart-trash.crt            ← Certificat SSL (généré, non commité)
+│   └── smart-trash.key            ← Clé privée SSL (générée, non commitée)
+│
 ├── passerelle_mqtt.py             ← Pont MQTT → API (écoute le broker, valide et transmet)
-├── docker-compose.yml             ← MariaDB + Apache/PHP + variables env
+├── docker-compose.yml             ← MariaDB + Apache/PHP + Mosquitto + Passerelle
 ├── README.md                      ← Ce fichier
 ├── GUIDE_PHYSIQUE.md              ← Guide installation matérielle
 └── PROBLEMES_FREQUENTS.md         ← FAQ des problèmes rencontrés
@@ -633,25 +644,38 @@ unzip smart-trash.zip
 cd smart-trash
 ```
 
-#### 2. Lancer le projet (une seule commande !)
+#### 2. Générer le certificat SSL (une seule fois)
+
+```bash
+bash ssl/generate_cert.sh
+```
+
+Crée `ssl/smart-trash.crt` et `ssl/smart-trash.key` utilisés par Apache pour le HTTPS.
+
+#### 3. Lancer le projet (une seule commande !)
 
 ```bash
 docker-compose up -d
 ```
 
-Cette commande va :
+Cette commande démarre **4 services** :
 
-- Télécharger les images **MariaDB 10.6** et **PHP 8.2 + Apache**
-- Créer le conteneur `smart_trash_db` (base de données)
-- Créer le conteneur `smart_trash_web` (serveur web + API)
+- `smart_trash_db` — MariaDB 10.6 (base de données)
+- `smart_trash_web` — Apache + PHP 8.2 (API REST + site web, ports 8080 et 8443)
+- `smart_trash_mqtt` — Mosquitto 2 (broker MQTT, port 1883)
+- `smart_trash_passerelle` — Python 3.11 (passerelle MQTT → API)
+
+Elle va aussi :
+
 - Créer la base `smart_trash` automatiquement
 - Exécuter `database/schema.sql` (tables + utilisateur admin)
 - Exécuter `database/init_user.sql` (utilisateur dédié `smart_user`)
-- Installer l'extension PDO MySQL automatiquement
+- Activer les modules Apache `ssl` et `rewrite`
 - Régénérer le hash du mot de passe admin (via variable d'environnement)
+- Attendre que l'API soit prête avant de démarrer la passerelle (healthcheck)
 - Sauvegarder les données dans `db_data/` (persistance)
 
-#### 3. Charger les données de test (développement uniquement)
+#### 4. Charger les données de test (développement uniquement)
 
 La base démarre vide. Pour la peupler avec des données simulées en dev :
 
@@ -662,16 +686,16 @@ docker exec -i smart_trash_db mysql -uroot -ppassword smart_trash \
 
 > ⚠️ Ne pas exécuter cette commande sur le Raspberry en production.
 
-#### 4. Accéder au site
+#### 5. Accéder au site
 
-**Site web** : http://localhost:8080/web/login.html
-**API** : http://localhost:8080/api/poubelles.php
+**Site web** : https://192.168.4.1:8443/web/login.html (ou http://192.168.4.1:8080 → redirige automatiquement)  
+**API** : https://192.168.4.1:8443/api/poubelles.php
 
 **Identifiants par défaut :**
 - Email : `admin@smarttrash.fr`
 - Mot de passe : `admin123`
 
-#### 5. Vérifier que tout fonctionne
+#### 6. Vérifier que tout fonctionne
 
 ```bash
 # Voir si les conteneurs tournent
@@ -686,7 +710,7 @@ SELECT * FROM poubelles;
 EXIT;
 ```
 
-#### 6. Arrêter le projet
+#### 7. Arrêter le projet
 
 ```bash
 docker-compose down
@@ -701,6 +725,8 @@ docker-compose down
 | `docker-compose logs` | Voir tous les logs |
 | `docker-compose logs web` | Voir les logs du serveur web |
 | `docker-compose logs db` | Voir les logs de MariaDB |
+| `docker-compose logs mosquitto` | Voir les logs du broker MQTT |
+| `docker-compose logs passerelle` | Voir les logs de la passerelle MQTT |
 | `docker ps` | Vérifier que les conteneurs tournent |
 
 ### Réinitialiser la base de données
@@ -731,10 +757,10 @@ docker-compose up -d
 
 ```bash
 # Récupérer la liste des poubelles
-curl http://localhost:8080/api/poubelles.php
+curl -k https://localhost:8443/api/poubelles.php
 
 # Envoyer une mesure simulée (avec humidité)
-curl -X POST http://localhost:8080/api/mesures.php \
+curl -k -X POST https://localhost:8443/api/mesures.php \
   -H "Content-Type: application/json" \
   -d '{"id_poubelle": 1, "niveau": 85, "poids": 12.5, "temperature": 25.3, "humidite": 55.0}'
 ```
@@ -773,7 +799,9 @@ curl -X POST http://localhost:8080/api/mesures.php \
 |--------|-------------|------|
 | **Hardware** | ESP32 + capteurs (HC-SR04, HX711, DHT22) | Collecte des données |
 | **Communication** | WiFi + MQTT (Mosquitto) | Transmission au serveur |
-| **Passerelle** | Python (`passerelle_mqtt.py`) | Validation + relais MQTT → API |
+| **Passerelle** | Python (`passerelle_mqtt.py`) | Validation + relais MQTT → API (host : `mosquitto`, API : `http://web`) |
+| **Broker MQTT** | Mosquitto 2 (Docker) | Réception des messages ESP32 sur `smart_trash/data` |
+| **HTTPS** | Apache mod_ssl + certificat auto-signé | Port 8443, redirection automatique depuis le port 8080 |
 | **Déploiement** | Docker Compose (Apache + PHP + MariaDB) | Lancement en une commande |
 | **Backend** | PHP 8.2 + PDO (API REST) | Stockage, analyse, alertes multi-critères |
 | **Base de données** | MariaDB 10.6 | Historique des mesures et alertes |
@@ -791,7 +819,7 @@ curl -X POST http://localhost:8080/api/mesures.php \
 | **Enzo** | Capteurs + ESP32 + Docker |
 | **Abdul** | Serveur Raspberry Pi + BDD |
 | **Abd-El-Raouf** | Site web + Sécurisation PDO |
-| **Kilian** | WiFi ESP32 + Scripts Python + Optimisation |
+| **Kilian** | Scripts Python + Optimisation |
 
 ---
 

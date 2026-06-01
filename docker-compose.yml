@@ -9,15 +9,22 @@ services:
     restart: always
     ports:
       - "8080:80"
+      - "8443:443"
     volumes:
       - ./api:/var/www/html/api
       - ./web:/var/www/html/web
+      - ./ssl/smart-trash.crt:/etc/ssl/certs/smart-trash.crt
+      - ./ssl/smart-trash.key:/etc/ssl/private/smart-trash.key
+      - ./apache/ssl.conf:/etc/apache2/sites-enabled/ssl.conf
     depends_on:
       - db
     environment:
       ADMIN_PASSWORD: admin123
     command: >
-      bash -c "docker-php-ext-install pdo pdo_mysql && php /var/www/html/api/init_password.php && apache2-foreground"
+      bash -c "docker-php-ext-install pdo pdo_mysql &&
+               a2enmod ssl rewrite &&
+               php /var/www/html/api/init_password.php &&
+               apache2-foreground"
 
   # ============================================
   # Base de données MariaDB
