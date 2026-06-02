@@ -11,7 +11,7 @@ import time
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-API_URL = "http://localhost:8080/api/mesures.php"
+API_URL = "https://localhost:8443/api/mesures.php"
 NB_REQUETES = 100
 NB_THREADS = 10  # 10 threads en parallèle
 
@@ -30,7 +30,7 @@ def envoyer_mesure(numero):
 
     debut = time.time()
     try:
-        response = requests.post(API_URL, json=data, timeout=10)
+        response = requests.post(API_URL, json=data, timeout=10, verify=False)
         duree = (time.time() - debut) * 1000  # en ms
 
         return {

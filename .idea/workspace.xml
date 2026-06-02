@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="27b31d2d-f765-486a-902d-a9db2551fa94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/apache/ssl.conf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ssl/generate_cert.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_charge.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_charge.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +110,8 @@
       <workItem from="1779890095127" duration="4871000" />
       <workItem from="1780234857670" duration="3791000" />
       <workItem from="1780337617546" duration="1968000" />
-      <workItem from="1780339758760" duration="571000" />
+      <workItem from="1780339758760" duration="6351000" />
+      <workItem from="1780412965610" duration="6296000" />
     </task>
     <servers />
   </component>
