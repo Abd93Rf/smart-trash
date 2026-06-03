@@ -15,7 +15,7 @@ import logging
 BROKER_HOST = "mosquitto"
 BROKER_PORT = 1883
 TOPIC = "smart_trash/data"
-API_URL = "http://mosquitto:8080/api/mesures.php"
+API_URL = "http://web/api/mesures.php"
 MAX_JSON_SIZE = 1024  # Taille max du JSON en octets (1 Ko)
 RECONNECT_DELAY = 5   # Délai entre les tentatives de reconnexion (secondes)
 
@@ -92,7 +92,7 @@ def on_message(client, userdata, msg):
 
     # Envoyer à l'API
     try:
-        response = requests.post(API_URL, json=data, timeout=5)
+        response = requests.post(API_URL, json=data, timeout=5, verify=False)
         if response.status_code == 201 or response.status_code == 200:
             compteur["succes"] += 1
             logging.info("Envoyé : poubelle %s | niveau=%s%%", data["id_poubelle"], data["niveau"])
