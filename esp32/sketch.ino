@@ -9,7 +9,7 @@ const char* mqtt_server = "192.168.4.1";
 
 IPAddress local_IP(192, 168, 4, 3);
 IPAddress gateway(192, 168, 4, 1);
-IPAddress subnet(255, 255, 255, 240); // Masque /28 appliqué
+IPAddress subnet(255, 255, 255, 240);
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -30,10 +30,11 @@ const int LOADCELL_SCK_PIN = 23;
 
 HX711 scale;
 
-float calibration_factor = 780.0;
+float calibration_factor = 22684.0;
 
 long duration = 0;
 int distance = 0;
+float distanceLissee = 0.0;
 bool distanceValide = false;
 
 float temperature = 0.0;
@@ -60,15 +61,37 @@ void processUltrasonic() {
     return;
   }
 
-  int nouvelleDistance = duration * 0.034 / 2;
+  // Calcul de la vitesse du son avec la température du DHT22
+  float vitesseSon = 0.03314 + (0.0000606 * temperature);
 
-  if (nouvelleDistance >= 2 && nouvelleDistance <= 400) {
-    distance = nouvelleDistance;
+  // Sécurité si le DHT n'a pas encore lu au démarrage
+  if (temperature == 0.0) {
+    vitesseSon = 0.034;
+  }
+
+  // Mesure brute avec virgule (float) pour plus de précision
+  float nouvelleDistanceBrute = duration * vitesseSon / 2.0;
+
+  if (nouvelleDistanceBrute >= 2 && nouvelleDistanceBrute <= 400) {
+
+    // NOUVEAU : Application du filtre passe-bas (Lissage)
+    if (distanceLissee == 0.0) {
+      // Au démarrage, on prend la première valeur directement
+      distanceLissee = nouvelleDistanceBrute;
+    } else {
+      // Ensuite on lisse : 20% de la nouvelle valeur + 80% de l'ancienne
+      distanceLissee = (nouvelleDistanceBrute * 0.2) + (distanceLissee * 0.8);
+    }
+
+    // On arrondit à l'entier le plus proche pour l'affichage final
+    distance = round(distanceLissee);
     distanceValide = true;
+
   } else {
     distanceValide = false;
   }
 
+  // Gestion des LEDs
   if (distance < 15) {
     digitalWrite(ledPin, HIGH);
     digitalWrite(ledPin2, LOW);
@@ -166,7 +189,6 @@ void setup() {
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 
   scale.set_scale(calibration_factor);
-  //scale.set_scale();
   scale.tare();
 
   Serial.println("Capteurs initialisés");
@@ -226,12 +248,15 @@ void loop() {
 
     Serial.println("\n===== MESURES =====");
 
-    // Calcul du niveau déplacé ici pour l'affichage série
     int niveau = 0;
 
     if (distanceValide) {
-      niveau = map(distance, 50, 0, 0, 100);
+      niveau = map(distance, 49, 0, 0, 100);
       niveau = constrain(niveau, 0, 100);
+
+      Serial.print("Distance : ");
+      Serial.print(distance);
+      Serial.println(" cm");
 
       Serial.print("Niveau de remplissage : ");
       Serial.print(niveau);
@@ -254,9 +279,9 @@ void loop() {
 
     if (distanceValide) {
 
-      // Construction du JSON mise à jour
       String data = "{";
       data += "\"id_poubelle\":1,";
+      data += "\"distance\":" + String(distance) + ",";
       data += "\"niveau\":" + String(niveau) + ",";
       data += "\"temperature\":" + String(temperature, 1) + ",";
       data += "\"humidite\":" + String(humidite, 1) + ",";

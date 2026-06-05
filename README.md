@@ -727,6 +727,7 @@ docker-compose down
 | `docker-compose logs db` | Voir les logs de MariaDB |
 | `docker-compose logs mosquitto` | Voir les logs du broker MQTT |
 | `docker-compose logs passerelle` | Voir les logs de la passerelle MQTT |
+| `sudo docker exec smart_trash_mqtt mosquitto_sub -t "smart_trash/data"` | Voir les données MQTT en temps réel |
 | `docker ps` | Vérifier que les conteneurs tournent |
 
 ### Réinitialiser la base de données
